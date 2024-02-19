@@ -237,7 +237,7 @@
     <aside id="sidebar" class="sidebar">
         <ul class="sidebar-nav" id="sidebar-nav">
             <li class="nav-item">
-                <a class="nav-link " asp-action="Dashboard" asp-controller="Common">
+                <a class="nav-link " asp-action="Dashboard" asp-controller="Home">
                     <i class="bi bi-grid"></i>
                     <span>Dashboard</span>
                 </a>
@@ -253,31 +253,11 @@
             </li><!-- End Profile Page Nav -->
 
             <li class="nav-item">
-                <a class="nav-link collapsed" asp-action="Classes" asp-controller="Home">
+                <a class="nav-link collapsed" asp-action="Classes" asp-controller="Admin">
                     <i class="bi bi-collection"></i>
-                    <span>Classes Admin</span>
+                    <span>Classes</span>
                 </a>
             </li><!-- End Classes Page Nav -->
-
-            <li class="nav-item">
-                <a class="nav-link collapsed" asp-action="ClassRegister">
-                    <i class="bi bi-journal"></i>
-                    <span>Class Register</span>
-                </a>
-            </li><!-- End Register Page Nav -->
-
-            <li class="nav-item">
-                <a class="nav-link collapsed" asp-action="Schedule">
-                    <i class="bi bi-journal-text"></i>
-                    <span>Schedule</span>
-                </a>
-            </li><!-- End Schedule Page Nav -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" asp-action="Library" asp-controller="Home">
-                    <i class="bi bi-book"></i>
-                    <span>Library</span>
-                </a>
-            </li><!-- End Library Page Nav -->
         </ul>
     </aside><!-- End Sidebar-->
     @RenderBody()

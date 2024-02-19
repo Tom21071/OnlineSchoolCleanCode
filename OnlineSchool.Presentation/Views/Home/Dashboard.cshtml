@@ -1,11 +1,4 @@
-﻿@if (User.IsInRole("Admin"))
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
-else if (User.IsInRole("Student"))
-    Layout = "~/Views/Shared/_StudentLayout.cshtml";
-else if (User.IsInRole("Teacher"))
-    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
-else
-    Layout = "~/Views/Shared/_NotLoggedLayout.cshtml";
+﻿
 
 <main>
     <div class="container">

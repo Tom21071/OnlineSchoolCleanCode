@@ -36,7 +36,7 @@
         <div class="d-flex align-items-center">
             <div class="logo d-flex align-items-center">
                 <img src="~/assets/img/logo.png" alt="">
-                <span class="d-none d-lg-block"><a asp-action="Dashboard" asp-controller="Common">OnlineSchool</a></span>
+                <span class="d-none d-lg-block"><a asp-action="Dashboard" asp-controller="Home">OnlineSchool</a></span>
             </div>
             <i class="bi bi-list toggle-sidebar-btn"></i>
         </div><!-- End Logo -->
@@ -253,27 +253,27 @@
             </li><!-- End Profile Page Nav -->
 
             <li class="nav-item">
-                <a class="nav-link collapsed" asp-action="Classes" asp-controller="Home">
+                <a class="nav-link collapsed" asp-action="Classes" asp-controller="Student">
                     <i class="bi bi-collection"></i>
-                    <span>Classes Student</span>
+                    <span>Classes</span>
                 </a>
             </li><!-- End Classes Page Nav -->
 
             <li class="nav-item">
-                <a class="nav-link collapsed" asp-action="ClassRegister">
+                <a class="nav-link collapsed" asp-action="ClassRegister" asp-controller="Student">
                     <i class="bi bi-journal"></i>
                     <span>Class Register</span>
                 </a>
             </li><!-- End Register Page Nav -->
 
             <li class="nav-item">
-                <a class="nav-link collapsed" asp-action="Schedule">
+                <a class="nav-link collapsed" asp-action="Schedule" asp-controller="Student">
                     <i class="bi bi-journal-text"></i>
                     <span>Schedule</span>
                 </a>
             </li><!-- End Schedule Page Nav -->
             <li class="nav-item">
-                <a class="nav-link collapsed" asp-action="Library">
+                <a class="nav-link collapsed" asp-action="Library" asp-controller="Home">
                     <i class="bi bi-book"></i>
                     <span>Library</span>
                 </a>

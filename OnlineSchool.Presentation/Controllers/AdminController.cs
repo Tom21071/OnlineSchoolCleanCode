@@ -197,5 +197,32 @@ namespace OnlineSchool.Presentation.Controllers
             return View();
         }
 
+        public IActionResult AddClass()
+        {
+            List<AppUser> appUsers = _context.Users.Include(x => x.Roles).Where(user => user.Roles.Any(role => role.RoleId == "2")).ToList();
+            List<SelectListItem> teachers = new List<SelectListItem>();
+            foreach (var item in appUsers)
+            {
+                teachers.Add(new SelectListItem
+                {
+                    Value = item.Id,
+                    Text = item.FirstName + " " + item.LastName,
+                });
+            }
+
+            ViewBag.Teachers = teachers;
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult AddClass(AddClassModel model)
+        {
+            Class classToDatabase = new Class();
+            classToDatabase.TeacherId = model.TeacherId;
+            classToDatabase.Name = model.ClassName;
+            _context.Classes.Add(classToDatabase);
+            _context.SaveChanges();
+            return View();
+        }
     }
 }

@@ -1,56 +1,5 @@
 ﻿@model PersonalCabnetModel
 
-@* <div class="row">
-	<div class="col-6 col-lg-3 ratio ratio-4x3 mb-3">
-		<img class="img-fluid rounded" src="@Model.User.ImagePath"/>
-	</div>
-
-    <div class="col-6 col-lg-3 text-dark h3">
-		@Model.User.FirstName
-		@Model.User.LastName
-        @if (User.IsInRole("Teacher"))
-        {
-            <span class="badge badge-pill badge-success">Teacher</span>
-        }
-         @if (User.IsInRole("Student"))
-        {
-            <span class="badge badge-pill badge-primary">Student</span>
-        }
-        @if (User.IsInRole("Admin"))
-        {
-            <span class="badge badge-pill badge-danger">Admin</span>
-        }
-	</div>
-
-    @if (User.IsInRole("Student"))
-    {
-        <div class="col-12 col-lg-6 text-dark h5">
-            <div class="h4">Tommorrow's lessons</div>
-
-            <table class="table table-striped text-dark table-hover table-bordered">
-                <thead class="thead-black">
-                    <tr>
-                        <th>Hours</th>
-                        <th>Subject</th>
-                        <th>Cabinet</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (Lesson lesson in Model.Lessons)
-                    {
-                        <tr>
-                            <td>@TimeOnly.FromDateTime(lesson.Start).ToString("HH:mm") - @TimeOnly.FromDateTime(lesson.End).ToString("HH:mm")</td>
-                            <td><a class="text-decoration-none text-dark btn btn-outline-secondary w-100" asp-action="Chat" asp-route-subjectId="@lesson.Subject.Id">@lesson.Subject.Title</a></td>
-                            <td>@lesson.Cabnet</td>
-                        </tr>
-                    }
-                    <!-- Add more rows for other lessons -->
-                </tbody>
-            </table>
-        </div>
-    }
-</div> *@
-
 <main id="main" class="main">
 
     <div class="pagetitle">
@@ -91,7 +40,7 @@
                     @if (User.IsInRole("Admin"))
                     {
                         <div class="col-12 col-md-4">
-                            <a class="btn btn-outline-danger w-100 mt-1" asp-action="AddClass">Add a Class</a>
+                            <a class="btn btn-outline-danger w-100 mt-1" asp-action="AddClass" asp-controller="Admin">Add a Class</a>
 
                         </div>
                         <div class="col-12 col-md-4">
