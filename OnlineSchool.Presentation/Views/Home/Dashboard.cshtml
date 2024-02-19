@@ -1,0 +1,17 @@
+﻿@if (User.IsInRole("Admin"))
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+else if (User.IsInRole("Student"))
+    Layout = "~/Views/Shared/_StudentLayout.cshtml";
+else if (User.IsInRole("Teacher"))
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+else
+    Layout = "~/Views/Shared/_NotLoggedLayout.cshtml";
+
+<main>
+    <div class="container">
+        <section class="section error-404 min-vh-100 d-flex flex-column align-items-center justify-content-center">
+            <h1>Dashboard</h1>
+            <h2>news.</h2>
+        </section>
+    </div>
+</main><!-- End #main -->

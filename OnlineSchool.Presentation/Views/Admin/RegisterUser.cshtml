@@ -1,0 +1,66 @@
+﻿@model RegisterViewModel
+
+
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Register a New User</h1>
+    </div><!-- End Page Title -->
+
+    <div class="col-12 col-lg-5 mx-0 px-0">
+        <form asp-controller="Admin" asp-action="RegisterUser" method="post" asp-validation-summary="All">
+            <div class="form-group">
+                <label for="Input_Email">Email</label>
+                <span asp-validation-for="Email" class="text-danger"></span>
+                <input asp-for="Email" class="form-control" id="Input_Email" required>
+            </div>
+            <div class="form-group">
+                <label for="Input_Password">Password</label>
+                <span asp-validation-for="Password" class="text-danger"></span>
+                <input asp-for="Password" class="form-control" id="Input_Password" type="password" required>
+            </div>
+            <div class="form-group">
+
+                <label for="Input_ConfirmPassword">Confirm Password</label>
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                <input asp-for="ConfirmPassword" class="form-control" id="Input_ConfirmPassword" type="password" required>
+            </div>
+            <div class="form-group">
+                <label for="Input_ConfirmPassword">ImageUrl</label>
+                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                <input asp-for="ImageUrl" class="form-control" type="text" required>
+            </div>
+
+            <div class="form-group">
+                <label>First Name</label>
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+                <input asp-for="FirstName" class="form-control" type="text" required>
+            </div>
+            <div class="form-group">
+                <label>Last Name</label>
+                <span asp-validation-for="LastName" class="text-danger"></span>
+                <input asp-for="LastName" class="form-control" type="text" required>
+            </div>
+            <div class="form-group">
+                <label>Patronym</label>
+                <span asp-validation-for="Patronym" class="text-danger"></span>
+                <input asp-for="Patronym" class="form-control" type="text" required>
+            </div>
+            <div class="form-group">
+                <label>IDNP</label>
+                <span asp-validation-for="IDNP" class="text-danger"></span>
+                <input asp-for="IDNP" class="form-control" type="text" size="13" required>
+            </div>
+
+            <div class="form-group">
+                <label>DateOfBirth</label>
+                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                <input asp-for="DateOfBirth" class="form-control" type="date" maxlength="13" pattern="\d{13}" required>
+            </div>
+            <label>Role</label>
+            <select asp-for="Role" asp-items="@ViewBag.Roles" class="form-control"></select>
+            <button type="submit" class="btn btn-success mt-2">Register</button>
+        </form>
+
+
+    </div>
+</main>

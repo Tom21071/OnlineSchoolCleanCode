@@ -1,0 +1,29 @@
+﻿@model List<ClassesModel>
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>All Classes</h1>
+    </div><!-- End Page Title -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Teacher</th>
+                <th>Add Student</th>
+                <th>Edit Subjects</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Name</td>
+                    <td>@item.Teacher.FirstName @item.Teacher.LastName</td>
+                    <td><a asp-action="AddStudentsToClass" asp-controller="Admin" asp-route-id=@item.Id class="btn btn-danger fw-bold">Add Student To This Class</a></td>
+                    <td><a asp-action="EditSubjects" asp-controller="Admin" asp-route-id=@item.Id class="btn btn-success fw-bold">Edit Subjects</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</main>

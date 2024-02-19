@@ -1,0 +1,13 @@
+﻿@model SubjectModel
+<main id="main" class="main">
+    <a class="btn btn-success mb-2" asp-action="AddSubject" asp-controller="Admin" asp-route-id="@Model.ClassId">Add</a>
+    @foreach (var item in Model.Subjects)
+    {
+        <div class="w-50 p-3 rounded border border-secondary mb-2 d-flex justify-content-between" style="background-color:white;">
+            <span class="fs-5">@item.Class.Name - @item.Title</span>
+            <div>
+                <a class="btn btn-danger mx-1">Delete</a>
+            </div>
+        </div>
+    }
+</main>

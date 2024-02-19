@@ -1,0 +1,20 @@
+﻿@model AddClassModel
+
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Add Class</h1>
+    </div><!-- End Page Title -->
+
+
+    <div class="col-12 col-lg-5 mx-0 px-0">
+        <form asp-controller="Home" asp-action="AddClass" method="post" asp-validation-summary="All">
+            <div class="form-group">
+                <label for="ClassName">Class Name</label>
+                <input asp-for="ClassName" class="form-control" id="Input_Email" required>
+            </div>
+            <label>Teacher</label>
+            <select asp-for="TeacherId" asp-items="@ViewBag.Teachers" class="form-control"></select>
+            <button type="submit" class="btn btn-success mt-2">Add</button>
+        </form>
+    </div>
+</main>

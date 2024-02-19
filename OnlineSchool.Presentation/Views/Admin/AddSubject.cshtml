@@ -1,0 +1,21 @@
+﻿@model AddSubjectModel
+
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Add Subject</h1>
+    </div><!-- End Page Title -->
+    <span> @ViewBag.ClassId</span>
+   
+    <div class="col-12 col-lg-5 mx-0 px-0">
+        <form asp-controller="Admin" asp-action="AddSubject" method="post" asp-validation-summary="All">
+            <div class="form-group">
+                <input name="ClassId" value="@ViewBag.ClassId" asp-for="ClassId" hidden />
+                <label for="SubjectName">Subject Name</label>
+                <input asp-for="SubjectName" class="form-control" required>
+            </div>
+            <label>Teacher</label>
+            <select asp-for="TeacherId" asp-items="@ViewBag.Teachers" class="form-control"></select>
+            <button type="submit" class="btn btn-success mt-2">Add</button>
+        </form>
+    </div>
+</main>

@@ -1,0 +1,209 @@
+﻿@{
+    Layout = "~/Views/Shared/_RoomLayout.cshtml";
+}
+
+<main id="main" class="main bg-dark">
+    <!-- Video Section -->
+    <div class="row">
+        <div class="col-12 col-sm-6">
+            <video id="localVideo" autoplay controls class="img-fluid w-100"></video>
+            <div class="row d-flex justify-content-center">
+                <div id="micToggleId" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center fs-2 mx-1" style="width: 50px; height: 50px;" onclick="ToggleAudio()">
+                    <i class="bi bi-mic-fill"></i>
+                </div>
+                <div id="screenToggleId" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center fs-2 mx-1" style="width: 50px; height: 50px;" onclick="ToggleScreen()">
+                    <i class="bi bi-tv-fill"></i>
+                </div>
+                <a class="btn btn-danger rounded-circle d-flex align-items-center justify-content-center fs-2 mx-1" style="width: 50px; height: 50px;" asp-action="Classes">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6" id="remoteVideos">
+        </div>
+    </div>
+    <div class="text-light">
+        <h5>Participants</h5>
+    </div><!-- End Page Title -->
+    <div id="parentDiv" class="m-1 w-100 row flex-nowrap overflow-auto scrollbar scrollbar-primary" style="background-color:rgb(22,19,20);">
+
+        <div class="rounded-circle mx-1" style="background-image: url('@User.FindFirst("Image")?.Value'); background-size: cover; background-repeat: no-repeat; height: 100px; width:100px;"></div>
+
+    </div>
+</main>
+
+
+<script src="~/js/signalrLibrary.js"></script>
+<script src="~/js/webRtcAdapter.js"></script>
+<script src="~/js/roomComponents.js"></script>
+
+<script>
+    const localVideo = document.getElementById('localVideo');
+    let remoteVideo;
+    let screenStream;
+    let usersCount = 0;
+
+    let pcDict = {};
+
+    const connection = new signalR.HubConnectionBuilder().withUrl("/streaminghub").build();
+
+    
+    async function Join() {
+        await connection.invoke('JoinRoom', '@User.Identity.Name', '@ViewBag.StreamingRoomId', @ViewBag.SubjectId);
+    }
+
+    async function GetUserCount() {
+        return connection.invoke('RoomUsersCount', '@ViewBag.StreamingRoomId')
+            .then(userCount => {
+                return userCount;
+            })
+            .catch(error => {
+                console.error("Error getting user count:", error);
+                throw error;
+            });
+    }
+
+    connection.start().then(function () {
+        Join();
+        GetUserCount().then(usersCount => {
+            console.log("User count:", usersCount);
+            console.log("users count = ", usersCount);
+            console.log("users count type = :", typeof usersCount);
+
+            let isOfferer = (usersCount >= 2);
+            console.log("resultIsOfferer = :", isOfferer);
+            startWebRTC();
+        });
+    });
+
+    function sendMessage(message, reciever) {
+        console.log('Sending message:', message);
+        connection.invoke('SendMessage', '@ViewBag.StreamingRoomId', '@User.Identity.Name', message, reciever);
+    }
+
+    function AddPeer(sender, isOfferer) {
+        if (pcDict[sender.email]) {
+            console.log(`Peer with email ${sender.email} already exists.`);
+            return;
+        }
+        addUserToUserBar(sender);
+        addVideoElement(sender);
+        console.log(sender);
+        console.log(`creating peer..... ${sender.email} .`);
+        pcDict[sender.email] = new RTCPeerConnection({
+            iceServers: [
+                { urls: "stun:stun.l.google.com:19302" },
+                { urls: "stun:stun1.l.google.com:19302" },
+                { urls: "stun:stun2.l.google.com:19302" },
+                { urls: "stun:stun3.l.google.com:19302" },
+            ]
+        });
+
+        screenStream.getTracks().forEach(track => {
+            pcDict[sender.email].addTrack(track, screenStream);
+        });
+
+        pcDict[sender.email].onicecandidate = event => {
+            if (event.candidate) {
+                console.log("candidate found ", event.candidate)
+                sendMessage({ 'candidate': event.candidate }, sender.email);
+            }
+        };
+        if (isOfferer) {
+            pcDict[sender.email].onnegotiationneeded = () => {
+                pcDict[sender.email].createOffer().then(desc => pcDict[sender.email].setLocalDescription(desc, () => sendMessage({ 'sdp': pcDict[sender.email].localDescription }, sender.email), onError)).catch(onError);
+            }
+        }
+
+        pcDict[sender.email].onaddstream = event => {
+            remoteVideo = document.getElementById(sender.email + 'video');
+            remoteVideo.srcObject = event.stream;
+        };
+    }
+
+    async function startWebRTC() {
+        console.log("started webRtc");
+        await navigator.mediaDevices.getUserMedia({
+            audio: { 'echoCancellation': true },
+            video: {
+                "width": 640,
+                "height": 480
+            },
+        }).then(stream => {
+            screenStream = stream;
+            localVideo.srcObject = screenStream;
+        }, onError);
+        console.log("finished webRtc");
+        connection.invoke('SendMessage', '@ViewBag.StreamingRoomId', '@User.Identity.Name', 'Hello', 'all');
+    }
+
+    connection.on('ReceiveMessage', (message, sender, reciever) => {
+        if (sender.email == '@User.Identity.Name')
+            return
+        if (reciever != '@User.Identity.Name' && reciever != "all")
+            return;
+
+        console.log("Message! from " + sender.email);
+        console.log(message);
+        if (!message.sdp && !message.candidate) {
+            if (message == "Hello") {
+                console.log("SOMEBODY GOT IN");
+                AddPeer(sender, true);
+            }
+        }
+        else if (message.sdp) {
+
+            AddPeer(sender, false);
+            console.log(pcDict);
+            console.log('SETTING ANSWER FOR', sender.email);
+
+            pcDict[sender.email].setRemoteDescription(new RTCSessionDescription(message.sdp), () => {
+                if (pcDict[sender.email].remoteDescription.type === 'offer' && pcDict[sender.email].signalingState != 'stable') {
+                    pcDict[sender.email].createAnswer().then(desc => pcDict[sender.email].setLocalDescription(desc, () => sendMessage({ 'sdp': pcDict[sender.email].localDescription }, sender.email), onError)).catch(onError);
+                }
+            }, onError);
+
+        } else if (message.candidate) {
+            pcDict[sender.email].addIceCandidate(
+                new RTCIceCandidate(message.candidate), onSuccess, onError
+            );
+        }
+    });
+
+    connection.on('Disconnected', (email) => {
+        removeUserFromUserBar(email);
+        removeVideoElement(email + 'video');
+        delete pcDict[email]
+    });
+
+    async function ToggleScreen() {
+        let videoTrack = screenStream.getTracks().find(track => track.kind === 'video')
+        if (videoTrack.enabled) {
+            videoTrack.enabled = false;
+            var screenBtn = document.getElementById('screenToggleId');
+            screenBtn.className = "btn btn-danger rounded-circle d-flex align-items-center justify-content-center fs-2 mx-1";
+
+        }
+        else {
+            videoTrack.enabled = true;
+            var screenBtn = document.getElementById('screenToggleId');
+            screenBtn.className = "btn btn-primary rounded-circle d-flex align-items-center justify-content-center fs-2 mx-1";
+        }
+    }
+
+    async function ToggleAudio() {
+        let audioTrack = screenStream.getTracks().find(track => track.kind === 'audio')
+        if (audioTrack.enabled) {
+            audioTrack.enabled = false;
+            var audioBtn = document.getElementById('micToggleId');
+            audioBtn.className = "btn btn-danger rounded-circle d-flex align-items-center justify-content-center fs-2 mx-1";
+        }
+        else {
+            audioTrack.enabled = true;
+            var audioBtn = document.getElementById('micToggleId');
+            audioBtn.className = "btn btn-primary rounded-circle d-flex align-items-center justify-content-center fs-2 mx-1";
+        }
+
+
+    }
+</script>

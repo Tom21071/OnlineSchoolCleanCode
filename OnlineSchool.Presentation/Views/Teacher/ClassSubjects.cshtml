@@ -1,0 +1,69 @@
+﻿@model ClassSubjectsModel
+
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>My Subjects</h1>
+    </div><!-- End Page Title -->
+    <div class="row">
+        <div class="col-8 col-sm-9 col-md-10">
+            <div class="row">
+                @foreach (var item in Model.Subjects)
+                {
+                    <div style="width: 22rem;" class="mt-3">
+                        <div class="card border-left-success shadow-lg h-100 py-1">
+                            <div class="ratio ratio-1x1"><img class="card-img-top" src=@item.ImagePath alt="Card image cap"></div>
+                            <div class="card-body">
+                                <div class=" text-s font-weight-bold text-primary text-uppercase mb-1">@item.Title</div>
+                                <p class="card-text">Some quick example text to build on the card title.</p>
+                                <div class="text-center">
+                                    <a asp-action="Chat" asp-route-subjectId="@item.Id" class="btn btn-outline-success">Открыть Предмет</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="col-4 col-sm-3 col-md-2 mt-3 card border">
+            <div>
+                <a asp-action="H" class="row btn-light text-decoration-none text-dark">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                @Model.Teacher.FirstName
+                                @Model.Teacher.LastName
+                            </div>
+                            <div>
+                                <i class="bi bi-chat-left-text"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <span class="bg-primary text-light px-2 rounded m-1">Teacher</span>
+                    </div>
+                </a>
+                <div class="border-bottom w-75 mt-1 mb-1"></div>
+                @foreach (var item in Model.Students)
+                {
+                    <a asp-action="H" class="row btn-light text-decoration-none text-dark">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    @item.FirstName
+                                    @item.LastName
+                                </div>
+                                <div>
+                                    <i class="bi bi-chat-left-text"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <span class="bg-success text-light px-2 rounded m-1">Student</span>
+                        </div>
+                    </a>
+
+                }
+            </div>
+        </div>
+    </div>
+</main>

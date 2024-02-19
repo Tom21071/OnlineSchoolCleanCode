@@ -1,0 +1,54 @@
+﻿@model List<ScheduleModel>
+
+<main id="main" class="main">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Class</th>
+                <th>Monday</th>
+                <th>Tuesday</th>
+                <th>Wednesday</th>
+                <th>Thursday</th>
+                <th>Friday</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var scheduleItem in Model)
+            {
+                <tr>
+                    <td>@scheduleItem.Class.Name</td>
+                    <td>
+                        @foreach (var lesson in scheduleItem.Monday)
+                        {
+                            <div>@lesson.Start.ToString("HH:mm") - @lesson.End.ToString("HH:mm") @lesson.Subject.Title - @lesson.Cabnet cab.</div>
+                        }
+                    </td>
+                    <td>
+                        @foreach (var lesson in scheduleItem.Tuesday)
+                        {
+                            <div>@lesson.Start.ToString("HH:mm") - @lesson.End.ToString("HH:mm") @lesson.Subject.Title - @lesson.Cabnet cab.</div>
+                        }
+                    </td>
+                    <td>
+                        @foreach (var lesson in scheduleItem.Wednsday)
+                        {
+                            <div>@lesson.Start.ToString("HH:mm") - @lesson.End.ToString("HH:mm") @lesson.Subject.Title - @lesson.Cabnet cab.</div>
+                        }
+                    </td>
+                    <td>
+                        @foreach (var lesson in scheduleItem.Thursday)
+                        {
+                            <div>@lesson.Start.ToString("HH:mm") - @lesson.End.ToString("HH:mm") @lesson.Subject.Title - @lesson.Cabnet cab.</div>
+                        }
+                    </td>
+                    <td>
+                        @foreach (var lesson in scheduleItem.Friday)
+                        {
+                            <div>@lesson.Start.ToString("HH:mm") - @lesson.End.ToString("HH:mm") @lesson.Subject.Title - @lesson.Cabnet cab.</div>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</main>

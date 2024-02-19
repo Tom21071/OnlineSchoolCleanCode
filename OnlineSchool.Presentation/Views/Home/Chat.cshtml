@@ -1,0 +1,348 @@
+﻿@model List<SubjectMessage>
+@{
+    ViewData["Title"] = "Home Page";
+}
+<main id="main" class="main">
+    <!-- Begin Page Content -->
+    <div class="container">
+        <!-- Page Heading -->
+        <div class="card shadow-lg">
+            <div class="row">
+                <div class="col-12">
+
+                    <div class="p-4 ">
+                        <div class="text-center"><a class="btn btn-dark" id="loadMoreMessages">Load More</a></div>
+                        <div style="width: 100%;" id="messageContainer">
+                            @foreach (var message in Model)
+                            {
+                                if (message.User.Email == @User.Identity.Name)
+                                {
+                                    <div class="pb-4" style="float: right; width: 100%; text-align: right;">
+
+                                        <img src="@message.User.ImagePath" class="rounded-circle mr-1 d-none d-md-inline" alt="Chris Wood" width="50" height="50">
+
+                                        <div class="flex-shrink-1 rounded py-2 px-3 bg-chat-me" style="text-align: right;">
+                                            <div class="font-weight-bold mb-1 text-dark">You<span class="text-muted small text-nowrap mx-2">@message.Created.ToString("G")</span></div>
+                                            @message.Text
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="pb-4" style="clear: both; width: 100%;">
+                                        <img src="@message.User.ImagePath" class="rounded-circle mr-1 d-none d-md-inline" alt="Chris Wood" width="50" height="50">
+                                        <div>
+                                            <div style="text-align: left;" class="bg-chat-other flex-shrink-1 rounded py-2 px-3">
+                                                <div class="font-weight-bold mb-1 text-dark">@message.User.Email<span class="text-muted small text-nowrap mx-2">@message.Created.ToString("G")</span></div>
+                                                @message.Text
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="currentMeetings">
+                @foreach (Room item in @ViewBag.Rooms)
+                {
+                    <div class="bg-dark text-light  mx-2 mt-1 rounded p-1" id="@item.RoomName">RoomId: @item.RoomName<a class="btn btn-primary fw-bold mx-2" asp-action="Room" asp-route-streamingRoomId=@item.RoomName> Connect to this room </a></div>
+                }
+            </div>
+            <div class="flex-grow-0 py-3 px-4 ">
+                <div class="border-top mb-2"></div>
+                <div class="input-group">
+                    <a class="btn btn-outline-danger px-1 py-0 border text-start rounded-0" title="Start a stream" asp-action="CreateRoom" asp-route-subjectId=@ViewBag.SubjectId>
+                        <i class="bi bi-tv fs-5 mx-2 text"></i>
+                    </a>
+                    <input type="text" id="messageInput" class="form-control shadow-none" required placeholder="Type your message">
+                    <input type="text" hidden id="usernameInput" class="form-control shadow-none" value="@User.Identity.Name">
+
+                    <button id="sendButton" class="btn btn-primary shadow-none">Отправить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.11/signalr.min.js"></script>
+
+<script>
+    let skip = 5;
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/chatHub")
+        .build();
+
+    const streamingConnection = new signalR.HubConnectionBuilder()
+        .withUrl("/streaminghub")
+        .build();
+
+    connection.start().then(function () {
+        // Call the hub method to handle user connection
+        connection.invoke('OnConnectedAsync', @ViewBag.SubjectId)
+            .then(function () {
+                console.log('User connected to the hub and added to the group with groupname.', @ViewBag.SubjectId);
+            })
+            .catch(function (error) {
+                console.error('Error adding user to the group:', error);
+            });
+    });
+
+    streamingConnection.start().then(function () {
+        // Call the hub method to handle user connection
+        streamingConnection.invoke('OnConnectedAsync', @ViewBag.SubjectId)
+            .then(function () {
+                console.log('User connected to the video hub and added to the group with groupname.', @ViewBag.SubjectId);
+            })
+            .catch(function (error) {
+                console.error('Error adding user to the group:', error);
+            });
+    });
+
+    document.getElementById("sendButton").addEventListener("click", event => {
+        const message = document.getElementById("messageInput").value;
+        const subjectId = @ViewBag.SubjectId;
+        if (message.trim().length === 0 || message == "") {
+            alert("Empty Input Field");
+        }
+        else {
+            connection.invoke("SendMessage", message, subjectId).catch(err => console.error(err));
+        }
+    });
+
+    document.getElementById("loadMoreMessages").addEventListener("click", event => {
+        connection.invoke("LoadMoreMessages", @ViewBag.SubjectId, skip).catch(err => console.error(err));
+        skip = skip + 5;
+    });
+
+    streamingConnection.on("AddRoom", (id) => {
+        console.log("I add");
+        AddRoom(id);
+    });
+
+    streamingConnection.on("RemoveRoom", (id) => {
+        console.log("I remove");
+        RemoveRoom(id);
+    });
+
+
+    connection.on("ReceiveMessage", (message) => {
+        if (message.user.email == '@User.Identity.Name')
+            addMyMessageBlock(message);
+        else
+            otherBlock(message);
+        skip++;
+    });
+
+    connection.on("GetMessages", (messages) => {
+        if (messages.length < 5) {
+            document.getElementById('loadMoreMessages').style.visibility = 'hidden';
+        }
+
+        messages.forEach(function (message) {
+            if (message.user.email != '@User.Identity.Name')
+                otherBlockLazy(message);
+            else
+                addMyMessageBlockLazy(message);
+        });
+    });
+
+    function addMyMessageBlock(message) {
+        // Create a div element for the main container
+        var mainDiv = document.createElement('div');
+        mainDiv.className = 'pb-4';
+        mainDiv.style = 'float: right; width: 100%; text-align: right; ';
+
+        // Create an image element
+        var img = document.createElement('img');
+        img.src = "@User.FindFirst("Image")?.Value";
+        img.className = 'rounded-circle mr-1 d-none d-md-inline';
+        img.alt = 'Chris Wood';
+        img.width = '50';
+        img.height = '50';
+
+        // Create a div element for the inner content
+        var innerDiv = document.createElement('div');
+        innerDiv.className = 'flex-shrink-1 rounded py-2 px-3 bg-chat-me';
+        innerDiv.style = 'text-align: right;';
+
+        // Create the content for the inner div
+        var innerContent = document.createElement('div');
+        innerContent.className = 'font-weight-bold mb-1 text-dark';
+        innerContent.innerHTML = 'You<span class="text-muted small text-nowrap mx-2">@(DateTime.Now.ToString("G"))</span>';
+
+        // Create the message text
+        var messageText = document.createTextNode(message.text);
+
+        // Append the elements to construct the hierarchy
+        innerDiv.appendChild(innerContent);
+        innerDiv.appendChild(messageText);
+        mainDiv.appendChild(img);
+        mainDiv.appendChild(innerDiv);
+
+        // Append the mainDiv to the messageContainer
+        var messageContainer = document.getElementById('messageContainer');
+        messageContainer.appendChild(mainDiv);
+    }
+
+    function addMyMessageBlockLazy(message) {
+        // Create a div element for the main container
+        var mainDiv = document.createElement('div');
+        mainDiv.className = 'pb-4';
+        mainDiv.style = 'float: right; width: 100%; text-align: right; ';
+
+        // Create an image element
+        var img = document.createElement('img');
+        img.src = "@User.FindFirst("Image")?.Value";
+        img.className = 'rounded-circle mr-1 d-none d-md-inline';
+        img.alt = 'Chris Wood';
+        img.width = '50';
+        img.height = '50';
+
+        // Create a div element for the inner content
+        var innerDiv = document.createElement('div');
+        innerDiv.className = 'flex-shrink-1 rounded py-2 px-3 bg-chat-me';
+        innerDiv.style = 'text-align: right;';
+
+        // Create the content for the inner div
+        var innerContent = document.createElement('div');
+        innerContent.className = 'font-weight-bold mb-1 text-dark';
+        innerContent.innerHTML = 'You <span class="text-muted small text-nowrap mx-2">' + convertDatetime2ToJSDate(message.created).toLocaleString() + '</span>';
+
+        // Create the message text
+        var messageText = document.createTextNode(message.text);
+
+        // Append the elements to construct the hierarchy
+        innerDiv.appendChild(innerContent);
+        innerDiv.appendChild(messageText);
+        mainDiv.appendChild(img);
+        mainDiv.appendChild(innerDiv);
+
+        // Append the mainDiv to the messageContainer
+        var messageContainer = document.getElementById('messageContainer');
+        messageContainer.prepend(mainDiv)
+    }
+
+    function otherBlock(message) {
+        // Create a div element for the main container
+        var mainDiv = document.createElement('div');
+        mainDiv.className = 'pb-4';
+        mainDiv.style = 'clear: both; width: 100%;';
+
+        // Create an image element
+        var img = document.createElement('img');
+        img.src = message.user.imagePath;
+        img.className = 'rounded-circle mr-1 d-none d-md-inline';
+        img.alt = 'Chris Wood';
+        img.width = '50';
+        img.height = '50';
+
+        // Create a div element for the inner content
+        var innerDiv = document.createElement('div');
+        innerDiv.style = 'text-align: left;';
+        innerDiv.className = 'bg-chat-other flex-shrink-1 rounded py-2 px-3';
+
+        // Create the content for the inner div
+        var innerContent = document.createElement('div');
+        innerContent.className = 'font-weight-bold mb-1 text-dark';
+        innerContent.innerHTML = message.user.email.toString() + ' <span class="text-muted small text-nowrap mx-2">@(DateTime.Now.ToString("G"))</span>';
+
+        // Create the message text
+        var messageText = document.createTextNode(message.text);
+
+        // Append the elements to construct the hierarchy
+        innerDiv.appendChild(innerContent);
+        innerDiv.appendChild(messageText);
+        mainDiv.appendChild(img);
+        mainDiv.appendChild(innerDiv);
+
+        innerDiv.appendChild(innerContent);
+        innerDiv.appendChild(messageText);
+        mainDiv.appendChild(img);
+        mainDiv.appendChild(innerDiv);
+
+        // Append the mainDiv to the messageContainer
+        var messageContainer = document.getElementById('messageContainer');
+        messageContainer.appendChild(mainDiv);
+    }
+
+    function otherBlockLazy(message) {
+        // Create a div element for the main container
+        var mainDiv = document.createElement('div');
+        mainDiv.className = 'pb-4';
+        mainDiv.style = 'clear: both; width: 100%;';
+
+        // Create an image element
+        var img = document.createElement('img');
+        img.src = message.user.imagePath;
+        img.className = 'rounded-circle mr-1 d-none d-md-inline';
+        img.alt = 'Chris Wood';
+        img.width = '50';
+        img.height = '50';
+
+        // Create a div element for the inner content
+        var innerDiv = document.createElement('div');
+        innerDiv.style = 'text-align: left;';
+        innerDiv.className = 'bg-chat-other flex-shrink-1 rounded py-2 px-3';
+
+        // Create the content for the inner div
+        var innerContent = document.createElement('div');
+        innerContent.className = 'font-weight-bold mb-1 text-dark';
+        innerContent.innerHTML = message.user.email.toString() + ' <span class="text-muted small text-nowrap mx-2">' + convertDatetime2ToJSDate(message.created).toLocaleString() + '</span>';
+
+        // Create the message text
+        var messageText = document.createTextNode(message.text);
+
+        // Append the elements to construct the hierarchy
+        innerDiv.appendChild(innerContent);
+        innerDiv.appendChild(messageText);
+        mainDiv.appendChild(img);
+        mainDiv.appendChild(innerDiv);
+
+        innerDiv.appendChild(innerContent);
+        innerDiv.appendChild(messageText);
+        mainDiv.appendChild(img);
+        mainDiv.appendChild(innerDiv);
+
+        // Append the mainDiv to the messageContainer
+        var messageContainer = document.getElementById('messageContainer');
+        messageContainer.prepend(mainDiv)
+    }
+
+    function convertDatetime2ToJSDate(datetime2Value) {
+        // Convert datetime2 to JavaScript Date object
+        const jsDate = new Date(datetime2Value.replace(' ', 'T'));
+        return jsDate;
+    }
+
+    function AddRoom(id) {
+        var div = document.createElement('div');
+        div.className = 'bg-dark text-light mx-2 mt-1 rounded p-1';
+        div.id = id;
+
+        var roomNameText = document.createTextNode("RoomId: " + id);
+        var roomNameLink = document.createElement('a');
+        roomNameLink.className = 'btn btn-primary fw-bold mx-2';
+        roomNameLink.setAttribute('asp-action', 'Room');
+        roomNameLink.setAttribute('asp-route-streamingRoomId', id);
+        roomNameLink.href = '/room/' + id; // Set the href attribute accordingly
+
+        var connectText = document.createTextNode('Connect to this room');
+
+        roomNameLink.appendChild(connectText);
+
+        div.appendChild(roomNameText);
+        div.appendChild(roomNameLink);
+
+        var messageContainer = document.getElementById('currentMeetings');
+        messageContainer.appendChild(div)
+    }
+
+    function RemoveRoom(id) {
+        var div = document.getElementById(id);
+        div.remove();
+    }
+</script>

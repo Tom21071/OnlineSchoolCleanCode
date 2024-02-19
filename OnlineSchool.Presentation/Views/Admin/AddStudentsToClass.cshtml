@@ -1,0 +1,49 @@
+﻿@model List<AddStudentToClassModel>
+<main id="main" class="main">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">First Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">Classes</th>
+                <th scope="col">Add</th>
+                <th scope="col">Remove</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.User.FirstName</td>
+                    <td>@item.User.LastName</td>
+                    <td>
+                        @foreach (var c in item.Classes)
+                        {
+                            <span>@c.Class.Name</span>
+                        }
+                    </td>
+                    <td class="text-center">
+                        @if (item.Classes.Count == 0)
+                        {
+                            <a class="btn btn-primary " asp-action="AddStudentsToClassPerform" asp-asp-controller="Admin" asp-route-classId="@ViewBag.ClassId" asp-route-studentId="@item.User.Id">Add</a>
+                        }
+                        else
+                        {
+                            <btn class="btn btn-outline-primary disabled ">Added</btn>
+                        }
+                    </td>
+                    <td class="text-center">
+                        @if (item.Classes.Count > 0)
+                        {
+                            <a class="btn btn-danger " asp-action="RemoveStudentsFromClassPerform" asp-asp-controller="Admin" asp-route-classId="@ViewBag.ClassId" asp-route-studentId="@item.User.Id">Remove</a>
+                        }
+                        else
+                        {
+                            <btn class="btn btn-outline-danger disabled ">Not In a Class</btn>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</main>
