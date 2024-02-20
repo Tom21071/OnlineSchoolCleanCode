@@ -25,14 +25,14 @@ namespace OnlineSchool.Presentation.Controllers
             return View();
         }
 
-        public IActionResult Schedule()
+        public async Task<IActionResult> Schedule()
         {
             List<ScheduleModel> scheduleModels = new List<ScheduleModel>();
-            List<Class> classes = _context.Classes.OrderBy(x => x.Name).ToList();
+            List<Class> classes = await _context.Classes.OrderBy(x => x.Name).ToListAsync();
             foreach (var item in classes)
             {
 
-                List<Lesson> lessons = _context.Lessons.Where(x => x.ClassId == item.Id).Include(x => x.Subject).ToList();
+                List<Lesson> lessons = await _context.Lessons.Where(x => x.ClassId == item.Id).Include(x => x.Subject).ToListAsync();
                 ScheduleModel sm = new ScheduleModel();
                 sm.Class = item;
                 sm.Monday = lessons.Where(x => x.DayOfTheWeek == 1).OrderBy(x => x.Start).ToList();
@@ -54,12 +54,12 @@ namespace OnlineSchool.Presentation.Controllers
                 List<UserClass> userClasses = new();
                 if (User.IsInRole("Student"))
                 {
-                    userClasses = _context.UserClasses.Include(u => u.Class).Where(x => x.UserId == user.Id).ToList();
+                    userClasses = await _context.UserClasses.Include(u => u.Class).Where(x => x.UserId == user.Id).ToListAsync();
                     return View(userClasses);
                 }
                 else if (User.IsInRole("Teacher"))
                 {
-                    var teacherId = _context.Users.FirstOrDefault(x => x.Email == User.Identity.Name).Id;
+                    var teacherId = (await _context.Users.FirstOrDefaultAsync(x => x.Email == User.Identity.Name)).Id;
                     var classes = _context.Classes.Where(x => x.TeacherId == teacherId);
                     foreach (var item in classes)
                     {
@@ -79,17 +79,17 @@ namespace OnlineSchool.Presentation.Controllers
             {
 
                 if (User.IsInRole("Student"))
-                    if (_context.UserClasses.FirstOrDefault(x => x.UserId == user.Id && x.ClassId == classId) == null)
+                    if (await _context.UserClasses.FirstOrDefaultAsync(x => x.UserId == user.Id && x.ClassId == classId) == null)
                         return Forbid();
 
                 if (User.IsInRole("Teacher"))
-                    if (_context.Classes.FirstOrDefault(x => x.TeacherId == user.Id && x.Id == classId) == null)
+                    if (await _context.Classes.FirstOrDefaultAsync(x => x.TeacherId == user.Id && x.Id == classId) == null)
                         return Forbid();
 
                 ClassSubjectsModel classSubjectsModel = new ClassSubjectsModel();
-                classSubjectsModel.Subjects = _context.Subjects.Include(u => u.Class).Where(x => x.ClassId == classId).ToList();
-                classSubjectsModel.Teacher = _context.Users.FirstOrDefault(x => x.Id == _context.Classes.FirstOrDefault(y => y.Id == classId).TeacherId);
-                List<UserClass> userClasses = _context.UserClasses.Include(u => u.User).Where(x => x.ClassId == classId).ToList();
+                classSubjectsModel.Subjects = await _context.Subjects.Include(u => u.Class).Where(x => x.ClassId == classId).ToListAsync();
+                classSubjectsModel.Teacher = await _context.Users.FirstOrDefaultAsync(x => x.Id == _context.Classes.FirstOrDefault(y => y.Id == classId).TeacherId);
+                List<UserClass> userClasses = await _context.UserClasses.Include(u => u.User).Where(x => x.ClassId == classId).ToListAsync();
                 classSubjectsModel.Students = new List<AppUser>();
 
                 foreach (var item in userClasses)

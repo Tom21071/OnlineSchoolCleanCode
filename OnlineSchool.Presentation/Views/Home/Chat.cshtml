@@ -46,9 +46,9 @@
                 </div>
             </div>
             <div id="currentMeetings">
-               @*  @foreach (Room item in @ViewBag.Rooms)
+                @*  @foreach (Room item in @ViewBag.Rooms)
                 {
-                    <div class="bg-dark text-light  mx-2 mt-1 rounded p-1" id="@item.RoomName">RoomId: @item.RoomName<a class="btn btn-primary fw-bold mx-2" asp-action="Room" asp-route-streamingRoomId=@item.RoomName> Connect to this room </a></div>
+                <div class="bg-dark text-light  mx-2 mt-1 rounded p-1" id="@item.RoomName">RoomId: @item.RoomName<a class="btn btn-primary fw-bold mx-2" asp-action="Room" asp-route-streamingRoomId=@item.RoomName> Connect to this room </a></div>
                 } *@
             </div>
             <div class="flex-grow-0 py-3 px-4 ">
@@ -100,6 +100,7 @@
             .catch(function (error) {
                 console.error('Error adding user to the group:', error);
             });
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth', duration: 10000 });
     });
 
     document.getElementById("sendButton").addEventListener("click", event => {
@@ -110,6 +111,8 @@
         }
         else {
             connection.invoke("SendMessage", message, subjectId).catch(err => console.error(err));
+            var inputField = document.getElementById('messageInput');
+            inputField.value = "";
         }
     });
 
@@ -140,6 +143,8 @@
         else
             otherBlock(message);
         skip++;
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth', duration: 10000 });
+
     });
 
     connection.on("GetMessages", (messages) => {
@@ -350,4 +355,7 @@
         var div = document.getElementById(id);
         div.remove();
     }
+
+
+
 </script>

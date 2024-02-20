@@ -18,7 +18,7 @@ namespace OnlineSchool.Presentation.Controllers
         }
 
         [AllowAnonymous]
-        public IActionResult Login()
+        public async Task<IActionResult> Login()
         {
             return View();
         }
@@ -42,9 +42,9 @@ namespace OnlineSchool.Presentation.Controllers
         }
 
         [Authorize]
-        public IActionResult LogOut()
+        public async Task<IActionResult> LogOut()
         {
-            _signInManager.SignOutAsync();
+           await _signInManager.SignOutAsync();
             return RedirectToAction("Login", "Login");
         }
     }

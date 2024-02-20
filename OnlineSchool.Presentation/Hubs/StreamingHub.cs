@@ -18,17 +18,17 @@ namespace OnlineSchool.Presentation.Hubs
     public class StreamingHub : Hub
     {
         private readonly AppDbContext _context;
-
-        public StreamingHub(AppDbContext context)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public StreamingHub(AppDbContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
         private static List<Room> rooms = new List<Hubs.Room>();
 
-
-        public async Task SendMessage(string roomId, string sender, object message, string reciever)
+        public async Task SendMessage(string roomId, object message, string reciever)
         {
-            await Clients.Groups(roomId).SendAsync("ReceiveMessage", message, _context.Users.FirstOrDefault(x => x.Email == sender),reciever);
+            await Clients.Groups(roomId).SendAsync("ReceiveMessage", message, _context.Users.FirstOrDefault(x => x.Email == _httpContextAccessor.HttpContext.User.Identity.Name),reciever);
         }
         public async Task OnConnectedAsync(int subjectId)
         {
@@ -41,13 +41,15 @@ namespace OnlineSchool.Presentation.Hubs
                 }
             }
         }
-        public async Task JoinRoom(string userName, string streamingRoomId, int subjectId)
+        public async Task JoinRoom(string streamingRoomId, int subjectId)
         {
+            var currentUserName = _httpContextAccessor.HttpContext.User;
             //add use if room exists
             if (rooms.Where(x => x.RoomName == streamingRoomId.ToString()).Any())
             {
+               
                 RoomUserModel roomUser = new RoomUserModel();
-                roomUser.User = _context.Users.FirstOrDefault(x => x.Email == userName);
+                roomUser.User = await _context.Users.FirstOrDefaultAsync(x => x.Email == currentUserName.Identity.Name);
                 roomUser.ConnectionId = Context.ConnectionId;
 
                 rooms.FirstOrDefault(x => x.RoomName == streamingRoomId).RoomUsers.Add(roomUser);
@@ -57,7 +59,7 @@ namespace OnlineSchool.Presentation.Hubs
             else //add new room and user
             {
                 RoomUserModel roomUser = new RoomUserModel();
-                roomUser.User = _context.Users.FirstOrDefault(x => x.Email == userName);
+                roomUser.User = await _context.Users.FirstOrDefaultAsync(x => x.Email == currentUserName.Identity.Name);
                 roomUser.ConnectionId = Context.ConnectionId;
 
                 rooms.Add(new Room

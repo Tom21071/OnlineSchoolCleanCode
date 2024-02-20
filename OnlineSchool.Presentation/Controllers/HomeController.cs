@@ -25,6 +25,7 @@ namespace OnlineSchool.Presentation.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
         }
+
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             ViewBag.Notifications = _context.UserNotifications.Include(x => x.Notification)
@@ -32,29 +33,23 @@ namespace OnlineSchool.Presentation.Controllers
             base.OnActionExecuting(context);
         }
 
-
-        public IActionResult Index()
-        {
-            return View(_context.Notifications.FirstOrDefault(x => x.Title == "Work"));
-        }
-
-        public IActionResult Dashboard()
+        public async Task<IActionResult> Dashboard()
         {
             return View();
         }
 
-        public IActionResult PersonalCabnet()
+        public async Task<IActionResult> PersonalCabnet()
         {
             PersonalCabnetModel personalCabnetModel = new PersonalCabnetModel();
-            personalCabnetModel.User = _context.Users.Include(x => x.Classes).FirstOrDefault(x => x.Email == User.Identity.Name);
-            List<UserClass> userClasses = _context.UserClasses.Include(x => x.Class).Include(x => x.User).Where(x => x.User.Email == User.Identity.Name).ToList();
+            personalCabnetModel.User = await _context.Users.Include(x => x.Classes).FirstOrDefaultAsync(x => x.Email == User.Identity.Name);
+            List<UserClass> userClasses = await _context.UserClasses.Include(x => x.Class).Include(x => x.User).Where(x => x.User.Email == User.Identity.Name).ToListAsync();
             personalCabnetModel.UserClasses = userClasses;
             int tommorow = (int)DateTime.Today.DayOfWeek + 1;
-            personalCabnetModel.Lessons = _context.Lessons.Include(s => s.Subject).Where(x => x.DayOfTheWeek == (byte)tommorow).ToList();
+            personalCabnetModel.Lessons = await _context.Lessons.Include(s => s.Subject).Where(x => x.DayOfTheWeek == (byte)tommorow).ToListAsync();
             return View(personalCabnetModel);
         }
 
-        public IActionResult Custom404()
+        public async Task<IActionResult> Custom404()
         {
             return View();
         }
@@ -70,23 +65,23 @@ namespace OnlineSchool.Presentation.Controllers
             _context.SaveChanges();
         }
 
-        public IActionResult Library()
+        public async Task<IActionResult> Library()
         {
             return View();
         }
 
-        public IActionResult AlreadyLoggedInTheRoom()
+        public async Task<IActionResult> AlreadyLoggedInTheRoom()
         {
             return View();
         }
 
-        public IActionResult RoomIsFull()
+        public async Task<IActionResult> RoomIsFull()
         {
             return View();
         }
 
         [Route("/room/{streamingRoomId}")]
-        public IActionResult Room(string streamingRoomId)
+        public async Task<IActionResult> Room(string streamingRoomId)
         {
             ViewBag.StreamingRoomId = streamingRoomId;
             List<Room> rooms = StreamingHub.GetGroups();
@@ -118,7 +113,7 @@ namespace OnlineSchool.Presentation.Controllers
         }
 
 
-        public IActionResult CreateRoom(int subjectId)
+        public async Task<IActionResult> CreateRoom(int subjectId)
         {
             ViewBag.SubjectId = subjectId;
             TempData["SubjectId"] = subjectId;
@@ -140,14 +135,11 @@ namespace OnlineSchool.Presentation.Controllers
 
                 if (User.IsInRole("Teacher"))
                     if (_context.Subjects.FirstOrDefault(x => x.TeacherId == user.Id && x.Id == subject.Id) == null) return Forbid();
-
-                ViewBag.Rooms = StreamingHub.GetGroups().Where(x => x.SubjectId == subjectId);
             }
             else
                 return Forbid();
-
-            var messages = GetMessages(0, 5, subjectId);
             ViewBag.SubjectId = subjectId;
+            var messages = GetMessages(0, 5, subjectId);
             return View(messages);
         }
 

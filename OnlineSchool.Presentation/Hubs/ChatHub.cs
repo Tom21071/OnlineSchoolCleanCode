@@ -20,14 +20,13 @@ namespace OnlineSchool.Presentation.Hubs
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task LoadMoreMessages( int subjectId, int skip)
+        public void LoadMoreMessages( int subjectId, int skip)
         {
-            await Clients.Caller.SendAsync("GetMessages", GetMessages(skip,5,subjectId));
+             Clients.Caller.SendAsync("GetMessages", GetMessages(skip,5,subjectId));
         }
 
         public List<SubjectMessage> GetMessages(int skip, int amount, int subjectId)
         {
-
             var baseQuery = _context.SubjectMessages.Include(u => u.User).Where(x => x.SubjectId == subjectId).OrderByDescending(x => x.Created);
             return baseQuery.Skip(skip).Take(amount).ToList();
         }
@@ -37,8 +36,8 @@ namespace OnlineSchool.Presentation.Hubs
             string userEmail = _httpContextAccessor.HttpContext.User.Identity.Name;
             var messageDto = new SubjectMessage
             {
-                UserId = _context.Users.FirstOrDefault(x => x.Email == userEmail).Id,
-                User = _context.Users.FirstOrDefault(x => x.Email == userEmail),
+                UserId =( await _context.Users.FirstOrDefaultAsync(x => x.Email == userEmail)).Id,
+                User = await _context.Users.FirstOrDefaultAsync(x => x.Email == userEmail),
                 SubjectId = subjectId,
                 Text = message,
                 Created = DateTime.Now

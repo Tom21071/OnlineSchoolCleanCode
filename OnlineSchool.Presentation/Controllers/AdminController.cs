@@ -26,9 +26,9 @@ namespace OnlineSchool.Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult RegisterUser()
+        public async Task<IActionResult> RegisterUser()
         {
-            var rolesInDb = _context.Roles.ToList();
+            var rolesInDb = await _context.Roles.ToListAsync();
             List<SelectListItem> roles = new List<SelectListItem>();
             foreach (var item in rolesInDb)
             {
@@ -91,11 +91,9 @@ namespace OnlineSchool.Presentation.Controllers
             return View(model);
         }
 
-
-
-        public IActionResult AddSubject(int id)
+        public async Task<IActionResult> AddSubject(int id)
         {
-            List<AppUser> appUsers = _context.Users.Include(x => x.Roles).Where(user => user.Roles.Any(role => role.RoleId == "2")).ToList();
+            List<AppUser> appUsers = await _context.Users.Include(x => x.Roles).Where(user => user.Roles.Any(role => role.RoleId == "2")).ToListAsync();
             List<SelectListItem> teachers = new List<SelectListItem>();
             foreach (var item in appUsers)
             {
@@ -112,58 +110,58 @@ namespace OnlineSchool.Presentation.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddSubject(AddSubjectModel subject)
+        public async Task<IActionResult> AddSubject(AddSubjectModel subject)
         {
             Subject subject1 = new Subject();
             subject1.Title = subject.SubjectName;
             subject1.TeacherId = subject.TeacherId;
             subject1.ClassId = subject.ClassId;
 
-            _context.Subjects.Add(subject1);
-            _context.SaveChanges();
+            await _context.Subjects.AddAsync(subject1);
+            await _context.SaveChangesAsync();
             return RedirectToAction("AddSubject", "Admin");
         }
 
-        public IActionResult EditSubjects(int id)
+        public async Task<IActionResult> EditSubjects(int id)
         {
             SubjectModel subject = new();
-            subject.Subjects = _context.Subjects.Include(x => x.Class).Where(x => x.ClassId == id).ToList();
+            subject.Subjects = await _context.Subjects.Include(x => x.Class).Where(x => x.ClassId == id).ToListAsync();
             subject.ClassId = id;
             return View(subject);
         }
 
-        public IActionResult AddStudentsToClass(int id)
+        public async Task<IActionResult> AddStudentsToClass(int id)
         {
             List<AddStudentToClassModel> students = new();
-            var studentsIds = _context.UserRoles.Where(x => x.RoleId == _context.Roles.FirstOrDefault(x => x.Name == "Student").Id).ToList();
+            var studentsIds = await _context.UserRoles.Where(x => x.RoleId == _context.Roles.FirstOrDefault(x => x.Name == "Student").Id).ToListAsync();
             foreach (var item in studentsIds)
             {
                 AddStudentToClassModel student = new AddStudentToClassModel();
-                student.User = _context.Users.FirstOrDefault(x => x.Id == item.UserId);
-                student.Classes = _context.UserClasses.Include(x => x.Class).Where(x => x.UserId == item.UserId).ToList();
+                student.User = await _context.Users.FirstOrDefaultAsync(x => x.Id == item.UserId);
+                student.Classes = await _context.UserClasses.Include(x => x.Class).Where(x => x.UserId == item.UserId).ToListAsync();
                 students.Add(student);
             }
             ViewBag.ClassId = id;
             return View(students);
         }
 
-        public IActionResult AddStudentsToClassPerform(int classId, string studentId)
+        public async Task<IActionResult> AddStudentsToClassPerform(int classId, string studentId)
         {
-            if (_context.UserClasses.FirstOrDefault(x => x.UserId == studentId && x.ClassId == classId) == null)
+            if (await _context.UserClasses.FirstOrDefaultAsync(x => x.UserId == studentId && x.ClassId == classId) == null)
             {
                 UserClass userClass = new UserClass();
                 userClass.UserId = studentId;
                 userClass.ClassId = classId;
-                _context.UserClasses.Add(userClass);
-                _context.SaveChanges();
+                await _context.UserClasses.AddAsync(userClass);
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToAction("AddStudentsToClass", "Admin", new { id = classId });
         }
 
-        public IActionResult RemoveStudentsFromClassPerform(int classId, string studentId)
+        public async Task<IActionResult> RemoveStudentsFromClassPerform(int classId, string studentId)
         {
-            if (_context.UserClasses.FirstOrDefault(x => x.UserId == studentId && x.ClassId == classId) != null)
+            if (await _context.UserClasses.FirstOrDefaultAsync(x => x.UserId == studentId && x.ClassId == classId) != null)
             {
                 _context.UserClasses.Remove(_context.UserClasses.FirstOrDefault(x => x.UserId == studentId && x.ClassId == classId));
                 _context.SaveChanges();
@@ -173,19 +171,17 @@ namespace OnlineSchool.Presentation.Controllers
 
         public IActionResult RemoveStudentsFromClass()
         {
-
             return RedirectToAction("Classes", "Home");
         }
-
-        public IActionResult ManageClasses()
+        public async Task<IActionResult> ManageClasses()
         {
             List<ClassesModel> classesModels = new List<ClassesModel>();
-            var classes = _context.Classes.ToList();
+            var classes = await _context.Classes.ToListAsync();
             foreach (var item in classes)
             {
                 ClassesModel cm = new ClassesModel();
                 cm.Name = item.Name;
-                cm.Teacher = _context.Users.FirstOrDefault(x => x.Id == item.TeacherId);
+                cm.Teacher = await _context.Users.FirstOrDefaultAsync(x => x.Id == item.TeacherId);
                 cm.Id = item.Id;
                 classesModels.Add(cm);
             }
@@ -197,9 +193,9 @@ namespace OnlineSchool.Presentation.Controllers
             return View();
         }
 
-        public IActionResult AddClass()
+        public async Task<IActionResult> AddClass()
         {
-            List<AppUser> appUsers = _context.Users.Include(x => x.Roles).Where(user => user.Roles.Any(role => role.RoleId == "2")).ToList();
+            List<AppUser> appUsers = await _context.Users.Include(x => x.Roles).Where(user => user.Roles.Any(role => role.RoleId == "2")).ToListAsync();
             List<SelectListItem> teachers = new List<SelectListItem>();
             foreach (var item in appUsers)
             {
@@ -215,13 +211,13 @@ namespace OnlineSchool.Presentation.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddClass(AddClassModel model)
+        public async Task<IActionResult> AddClass(AddClassModel model)
         {
             Class classToDatabase = new Class();
             classToDatabase.TeacherId = model.TeacherId;
             classToDatabase.Name = model.ClassName;
-            _context.Classes.Add(classToDatabase);
-            _context.SaveChanges();
+            await _context.Classes.AddAsync(classToDatabase);
+            await _context.SaveChangesAsync();
             return View();
         }
     }

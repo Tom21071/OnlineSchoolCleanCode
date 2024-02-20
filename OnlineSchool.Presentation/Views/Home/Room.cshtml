@@ -32,7 +32,6 @@
     </div>
 </main>
 
-
 <script src="~/js/signalrLibrary.js"></script>
 <script src="~/js/webRtcAdapter.js"></script>
 <script src="~/js/roomComponents.js"></script>
@@ -49,7 +48,7 @@
 
     
     async function Join() {
-        await connection.invoke('JoinRoom', '@User.Identity.Name', '@ViewBag.StreamingRoomId', @ViewBag.SubjectId);
+        await connection.invoke('JoinRoom', '@ViewBag.StreamingRoomId', @ViewBag.SubjectId);
     }
 
     async function GetUserCount() {
@@ -67,9 +66,6 @@
         Join();
         GetUserCount().then(usersCount => {
             console.log("User count:", usersCount);
-            console.log("users count = ", usersCount);
-            console.log("users count type = :", typeof usersCount);
-
             let isOfferer = (usersCount >= 2);
             console.log("resultIsOfferer = :", isOfferer);
             startWebRTC();
@@ -83,7 +79,7 @@
 
     function sendMessage(message, reciever) {
         console.log('Sending message:', message);
-        connection.invoke('SendMessage', '@ViewBag.StreamingRoomId', '@User.Identity.Name', message, reciever);
+        connection.invoke('SendMessage', '@ViewBag.StreamingRoomId', message, reciever);
     }
 
     function AddPeer(sender, isOfferer) {
@@ -139,7 +135,7 @@
             localVideo.srcObject = screenStream;
         }, onError);
         console.log("finished webRtc");
-        connection.invoke('SendMessage', '@ViewBag.StreamingRoomId', '@User.Identity.Name', 'Hello', 'all');
+        connection.invoke('SendMessage', '@ViewBag.StreamingRoomId', 'Hello', 'all');
     }
 
     connection.on('ReceiveMessage', (message, sender, reciever) => {
@@ -152,7 +148,6 @@
         console.log(message);
         if (!message.sdp && !message.candidate) {
             if (message == "Hello") {
-                console.log("SOMEBODY GOT IN");
                 AddPeer(sender, true);
             }
         }
@@ -160,8 +155,6 @@
 
             AddPeer(sender, false);
             console.log(pcDict);
-            console.log('SETTING ANSWER FOR', sender.email);
-
             pcDict[sender.email].setRemoteDescription(new RTCSessionDescription(message.sdp), () => {
                 if (pcDict[sender.email].remoteDescription.type === 'offer' && pcDict[sender.email].signalingState != 'stable') {
                     pcDict[sender.email].createAnswer().then(desc => pcDict[sender.email].setLocalDescription(desc, () => sendMessage({ 'sdp': pcDict[sender.email].localDescription }, sender.email), onError)).catch(onError);
@@ -208,7 +201,5 @@
             var audioBtn = document.getElementById('micToggleId');
             audioBtn.className = "btn btn-primary rounded-circle d-flex align-items-center justify-content-center fs-2 mx-1";
         }
-
-
     }
 </script>
