@@ -14,7 +14,7 @@
                 <div id="screenToggleId" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center fs-2 mx-1" style="width: 50px; height: 50px;" onclick="ToggleScreen()">
                     <i class="bi bi-tv-fill"></i>
                 </div>
-                <a class="btn btn-danger rounded-circle d-flex align-items-center justify-content-center fs-2 mx-1" style="width: 50px; height: 50px;" asp-action="Classes">
+                <a class="btn btn-danger rounded-circle d-flex align-items-center justify-content-center fs-2 mx-1" style="width: 50px; height: 50px;" id="leaveLink" asp-action="Chat" asp-route-subjectId="@ViewBag.SubjectId">
                     <i class="bi bi-x-lg"></i>
                 </a>
             </div>
@@ -74,6 +74,11 @@
             console.log("resultIsOfferer = :", isOfferer);
             startWebRTC();
         });
+    });
+
+    connection.on("RecieveSubjectId", (id) => {
+        let leaveLink = document.getElementById("leaveLink")
+        leaveLink.href = '/subjects/' + id;
     });
 
     function sendMessage(message, reciever) {

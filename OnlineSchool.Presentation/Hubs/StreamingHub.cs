@@ -11,7 +11,7 @@ namespace OnlineSchool.Presentation.Hubs
     public class Room
     {
         public string RoomName { get; set; }
-        public List<RoomUserModel> RoomUsers { get; set; }
+        public List<RoomUserModel> RoomUsers = new List<RoomUserModel>();
         public int SubjectId { get; set; }
     }
 
@@ -30,12 +30,17 @@ namespace OnlineSchool.Presentation.Hubs
         {
             await Clients.Groups(roomId).SendAsync("ReceiveMessage", message, _context.Users.FirstOrDefault(x => x.Email == sender),reciever);
         }
-
         public async Task OnConnectedAsync(int subjectId)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, subjectId.ToString());
+            foreach (var room in rooms)
+            {
+                if (room.RoomUsers.Count > 0)
+                {
+                    await Clients.Caller.SendAsync("RecieveRoomOnLoad", room.RoomName.ToString());
+                }
+            }
         }
-
         public async Task JoinRoom(string userName, string streamingRoomId, int subjectId)
         {
             //add use if room exists
@@ -45,14 +50,15 @@ namespace OnlineSchool.Presentation.Hubs
                 roomUser.User = _context.Users.FirstOrDefault(x => x.Email == userName);
                 roomUser.ConnectionId = Context.ConnectionId;
 
-                rooms.FirstOrDefault(x => x.RoomName == streamingRoomId.ToString()).RoomUsers.Add(roomUser);
+                rooms.FirstOrDefault(x => x.RoomName == streamingRoomId).RoomUsers.Add(roomUser);
+                int id = rooms.FirstOrDefault(x => x.RoomName == streamingRoomId).SubjectId;
+                await Clients.Caller.SendAsync("RecieveSubjectId", id);
             }
             else //add new room and user
             {
                 RoomUserModel roomUser = new RoomUserModel();
                 roomUser.User = _context.Users.FirstOrDefault(x => x.Email == userName);
                 roomUser.ConnectionId = Context.ConnectionId;
-
 
                 rooms.Add(new Room
                 {
@@ -63,6 +69,7 @@ namespace OnlineSchool.Presentation.Hubs
                 });
                 await Groups.AddToGroupAsync(Context.ConnectionId, subjectId.ToString());
                 await Clients.Groups(subjectId.ToString()).SendAsync("AddRoom", streamingRoomId);
+
             }
 
             await Groups.AddToGroupAsync(Context.ConnectionId, streamingRoomId.ToString());

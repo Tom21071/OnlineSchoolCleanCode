@@ -46,10 +46,10 @@
                 </div>
             </div>
             <div id="currentMeetings">
-                @foreach (Room item in @ViewBag.Rooms)
+               @*  @foreach (Room item in @ViewBag.Rooms)
                 {
                     <div class="bg-dark text-light  mx-2 mt-1 rounded p-1" id="@item.RoomName">RoomId: @item.RoomName<a class="btn btn-primary fw-bold mx-2" asp-action="Room" asp-route-streamingRoomId=@item.RoomName> Connect to this room </a></div>
-                }
+                } *@
             </div>
             <div class="flex-grow-0 py-3 px-4 ">
                 <div class="border-top mb-2"></div>
@@ -120,6 +120,11 @@
 
     streamingConnection.on("AddRoom", (id) => {
         console.log("I add");
+        AddRoom(id);
+    });
+
+    streamingConnection.on("RecieveRoomOnLoad", (id) => {
+        console.log("I add on load");
         AddRoom(id);
     });
 
