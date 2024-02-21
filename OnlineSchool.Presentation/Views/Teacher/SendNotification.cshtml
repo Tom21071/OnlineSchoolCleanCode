@@ -1,7 +1,7 @@
 ﻿@model NotificationModel
 
 <main id="main" class="main">
-    <form method="post">
+    <form method="post" asp-controller="Teacher" asp-action="SendNotification">
         @for (int i = 0; i < Model.Classes.Count; i++)
         {
             <input hidden asp-for="@Model.Classes[i].Id">
@@ -9,11 +9,7 @@
                 <span>@Model.Classes[i].Name</span>
                 <input class="form-check-input  border border-secondary" type="checkbox" unchecked asp-for="@Model.ClassesChecked[i]">
             </div>
-
-
-
         }
-
         <label for="Title" class="form-label">Title</label>
         <textarea class="form-control  w-50 border border-secondary rounded" id="Title" rows="3" asp-for="@Model.Title" required></textarea>
         <label for="Desc" class="form-label">Description</label>

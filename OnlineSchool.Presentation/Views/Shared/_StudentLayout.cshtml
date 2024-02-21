@@ -80,7 +80,7 @@
                                     <div class="w-100">
                                         <p>@item.Notification.Title</p>
                                         <p>@item.Notification.Description </p>
-                                        <p>30 min. ago</p>
+                                        <p>@item.Notification.CreatedAt.ToString("g")</p>
                                     </div>
                                     <div class="d-flex w-100 justify-content-end"><a class="btn" onclick="SawNotification(@item.Notification.Id)"><i class="bi bi-x text-secondary"></i></a> </div>
                                 </li>

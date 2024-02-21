@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineSchool.Domain.Contexts;
@@ -7,6 +8,7 @@ using OnlineSchool.Presentation.Models.Common;
 
 namespace OnlineSchool.Presentation.Controllers
 {
+    [Authorize(Roles = "Teacher")]
     public class TeacherController : Controller
     {
         private readonly AppDbContext _context;
@@ -55,7 +57,12 @@ namespace OnlineSchool.Presentation.Controllers
                 }
             }
             await _context.SaveChangesAsync();
-            return RedirectToAction("SendNotification", "Home");
+            return RedirectToAction("AddedNotification", "Teacher");
+        }
+
+        public async Task<IActionResult> AddedNotification()
+        {
+            return View();
         }
 
         public async Task<IActionResult> ClassRegister()

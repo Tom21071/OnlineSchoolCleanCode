@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineSchool.Domain.Contexts;
@@ -7,6 +8,7 @@ using OnlineSchool.Presentation.Models.Common;
 
 namespace OnlineSchool.Presentation.Controllers
 {
+    [Authorize(Roles = "Student")]
     public class StudentController : Controller
     {
         private readonly AppDbContext _context;
