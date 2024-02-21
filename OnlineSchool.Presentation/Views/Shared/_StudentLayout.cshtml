@@ -314,33 +314,7 @@
             </div>
         </div>
     </div>
-    <script>
-        function SawNotification(id) {
 
-            document.getElementById("Notification_" + id).remove();
-
-            notifCountInner = document.getElementById("notifCountInner");
-            notifCountInner.innerText = notifCountInner.innerText - 1;
-
-            let notifCount = document.getElementById("notifCount");
-            notifCount.innerText = notifCount.innerText - 1;
-
-            if (notifCount.innerText == 0)
-                notifCount.innerText = "";
-
-            $.ajax({
-                type: "POST",
-                url: "/Home/SawNotification",
-                data: {
-                    Id: id,
-                },
-                success: function (result) {
-                    // Handle the result here
-                    console.log(result);
-                }
-            });
-        }
-    </script>
     <!-- Vendor JS Files -->
     <script src="~/lib/jquery/dist/jquery.js"></script>
     <script src="~/assets/vendor/apexcharts/apexcharts.min.js"></script>
@@ -352,6 +326,7 @@
     <script src="~/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="~/assets/vendor/php-email-form/validate.js"></script>
     <!-- Template Main JS File -->
+    <script src="~/js/notifComponents.js"></script>
     <script src="~/assets/js/main.js"></script>
 </body>
 </html>

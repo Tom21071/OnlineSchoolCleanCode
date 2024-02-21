@@ -33,7 +33,7 @@
                                         <img src="@message.User.ImagePath" class="rounded-circle mr-1 d-none d-md-inline" alt="Chris Wood" width="50" height="50">
                                         <div>
                                             <div style="text-align: left;" class="bg-chat-other flex-shrink-1 rounded py-2 px-3">
-                                                <div class="font-weight-bold mb-1 text-dark">@message.User.Email<span class="text-muted small text-nowrap mx-2">@message.Created.ToString("G")</span></div>
+                                                <div class="font-weight-bold mb-1 text-dark">@message.User.FirstName @message.User.LastName<span class="text-muted small text-nowrap mx-2">@message.Created.ToString("G")</span></div>
                                                 @message.Text
                                             </div>
                                         </div>
@@ -182,7 +182,7 @@
         // Create the content for the inner div
         var innerContent = document.createElement('div');
         innerContent.className = 'font-weight-bold mb-1 text-dark';
-        innerContent.innerHTML = 'You<span class="text-muted small text-nowrap mx-2">@(DateTime.Now.ToString("G"))</span>';
+        innerContent.innerHTML = 'You <span class="text-muted small text-nowrap mx-2">@(DateTime.Now.ToString("G"))</span>';
 
         // Create the message text
         var messageText = document.createTextNode(message.text);
@@ -258,7 +258,7 @@
         // Create the content for the inner div
         var innerContent = document.createElement('div');
         innerContent.className = 'font-weight-bold mb-1 text-dark';
-        innerContent.innerHTML = message.user.email.toString() + ' <span class="text-muted small text-nowrap mx-2">@(DateTime.Now.ToString("G"))</span>';
+        innerContent.innerHTML = message.user.lastName.toString() + ' ' + message.user.firstName.toString() + ' <span class="text-muted small text-nowrap mx-2">@(DateTime.Now.ToString("G"))</span>';
 
         // Create the message text
         var messageText = document.createTextNode(message.text);
@@ -301,7 +301,7 @@
         // Create the content for the inner div
         var innerContent = document.createElement('div');
         innerContent.className = 'font-weight-bold mb-1 text-dark';
-        innerContent.innerHTML = message.user.email.toString() + ' <span class="text-muted small text-nowrap mx-2">' + convertDatetime2ToJSDate(message.created).toLocaleString() + '</span>';
+        innerContent.innerHTML = message.user.lastName.toString() + ' ' + message.user.firstName.toString() + ' <span class="text-muted small text-nowrap mx-2">' + convertDatetime2ToJSDate(message.created).toLocaleString() + '</span>';
 
         // Create the message text
         var messageText = document.createTextNode(message.text);
