@@ -17,5 +17,6 @@ namespace OnlineSchool.Domain.Entities {
         [Required, ForeignKey("AppUser"), Column(TypeName = "nvarchar(450)")]
         public string RecieverId { get; set; }
         public virtual AppUser Reciever { get; set; }
+        public bool IsRead { get; set; }
     }
 }

@@ -26,6 +26,8 @@ namespace OnlineSchool.Presentation.Hubs
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == _httpContextAccessor.HttpContext.User.Identity.Name);
             connectedUsers.Add(new ConnectedUser { UserId = user.Id, ConnectionId = Context.ConnectionId });
+            await _context.PrivateMessages.Where(x => x.RecieverId == user.Id && x.IsRead == false).ForEachAsync(x=>x.IsRead = true);
+            await _context.SaveChangesAsync();
         }
 
         public async Task SendMessage(string text, string recieverId)
@@ -33,10 +35,11 @@ namespace OnlineSchool.Presentation.Hubs
             var sender = await _context.Users.FirstOrDefaultAsync(x => x.Email == _httpContextAccessor.HttpContext.User.Identity.Name);
             var recipientUser = connectedUsers.FirstOrDefault(x => x.UserId == recieverId);
 
-            var message = new Domain.Entities.PrivateMessage { Created = DateTime.Now, Text = text, SenderId = sender.Id, RecieverId = recieverId, Sender = (await _context.Users.FirstOrDefaultAsync(x => x.Id == sender.Id)) };
+            var message = new Domain.Entities.PrivateMessage { Created = DateTime.Now, Text = text, SenderId = sender.Id, RecieverId = recieverId, Sender = (await _context.Users.FirstOrDefaultAsync(x => x.Id == sender.Id)), IsRead = false };
 
             if (recipientUser != null)
             {
+                message.IsRead = true;
                 await Clients.Client(recipientUser.ConnectionId).SendAsync("GetPrivateMesssage", message);
             }
             await Clients.Caller.SendAsync("GetPrivateMesssage", message);
