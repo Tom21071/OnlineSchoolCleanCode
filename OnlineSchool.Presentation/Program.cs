@@ -37,6 +37,7 @@ app.UseAuthorization();
 
 app.MapHub<ChatHub>("/chatHub");
 app.MapHub<StreamingHub>("/streaminghub");
+app.MapHub<PrivateHub>("/privateHub");
 
 
 app.MapControllerRoute(

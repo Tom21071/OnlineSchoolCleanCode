@@ -1,0 +1,268 @@
+﻿@model AppUser
+
+<main id="main" class="main">
+    <div class="container">
+        <!-- Page Heading -->
+        <div class="card shadow-lg">
+            <div class="row">
+                <div class="col-12">
+                    <div class="mt-3 mx-3 mb-2">
+                        <div class="row d-flex align-items-center justify-content-start">
+                            <div class="col-auto">
+                                <div style="background-image:url('@Model.ImagePath'); height:75px; width:75px; border-radius:20px; background-size:cover;"></div>
+                            </div>
+                            <div class="col-auto h text-center">
+                                @Model.FirstName @Model.LastName
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border"></div>
+                    <div class="mx-4 mt-1">
+                        <div class="text-center">
+                            <a class="btn btn-dark" id="loadMoreMessages">Load More</a>
+                        </div>
+                        <div style="width: 100%;" id="messageContainer">
+                        </div>
+                    </div>
+                    <div class="flex-grow-0 py-3 px-4 ">
+                        <div class="input-group">
+                            <input type="text" id="messageInput" class="form-control shadow-none" required placeholder="Type your message">
+                            <button id="sendButton" class="btn btn-primary shadow-none">Send</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.11/signalr.min.js"></script>
+<script>
+    let skip = 5;
+    const privateHub = new signalR.HubConnectionBuilder()
+        .withUrl("/privateHub")
+        .build();
+
+    privateHub.start().then(function () {
+        // Call the hub method to handle user connection
+        privateHub.invoke('OnConnectedAsync', '@Model.Id')
+            .then(function () {
+                console.log('User connected to the private hub');
+                privateHub.invoke("LoadMoreMessages", '@Model.Id', 0).catch(err => console.error(err));
+            })
+            .catch(function (error) {
+                console.error('Error adding user to the group:', error);
+            });
+    });
+
+    document.getElementById("sendButton").addEventListener("click", event => {
+        const message = document.getElementById("messageInput").value;
+        const recieverId = '@Model.Id';
+        if (message.trim().length === 0 || message == "") {
+            alert("Empty Input Field");
+        }
+        else {
+            privateHub.invoke("SendMessage", message, recieverId).catch(err => console.error(err));
+            var inputField = document.getElementById('messageInput');
+            inputField.value = "";
+        }
+    });
+
+    document.getElementById("loadMoreMessages").addEventListener("click", event => {
+        privateHub.invoke("LoadMoreMessages", '@Model.Id', skip).catch(err => console.error(err));
+        skip = skip + 5;
+    });
+
+    privateHub.on("GetMessages", (messages) => {
+        if (messages.length < 5 && skip > 5) {
+            document.getElementById('loadMoreMessages').style.visibility = 'hidden';
+        }
+
+        messages.forEach(function (message) {
+            if (message.sender.email != '@User.Identity.Name')
+                otherBlockLazy(message);
+            else
+                addMyMessageBlockLazy(message);
+        });
+    });
+
+    privateHub.on("GetPrivateMesssage", (message) => {
+        console.log("Got new message from" + message.sender.email)
+        if (message.sender.email == '@User.Identity.Name' || message.sender.id == '@Model.Id') {
+            if (message.sender.email == '@User.Identity.Name') {
+                addMyMessageBlock(message);
+                console.log("Adding my message" + message.sender.email.toString())
+            }
+            else {
+                console.log("Adding other message" + message.sender.email.toString())
+                otherBlock(message);
+            }
+            skip++;
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth', duration: 10000 });
+        }
+    });
+    function convertDatetime2ToJSDate(datetime2Value) {
+        // Convert datetime2 to JavaScript Date object
+        const jsDate = new Date(datetime2Value.replace(' ', 'T'));
+        return jsDate;
+    }
+    function addMyMessageBlockLazy(message) {
+        // Create a div element for the main container
+        var mainDiv = document.createElement('div');
+        mainDiv.className = 'pb-4';
+        mainDiv.style = 'float: right; width: 100%; text-align: right; ';
+
+        // Create an image element
+        var img = document.createElement('img');
+        img.src = "@User.FindFirst("Image")?.Value";
+        img.className = 'rounded-circle mr-1 d-none d-md-inline';
+        img.alt = 'Chris Wood';
+        img.width = '50';
+        img.height = '50';
+
+        // Create a div element for the inner content
+        var innerDiv = document.createElement('div');
+        innerDiv.className = 'flex-shrink-1 rounded py-2 px-3 bg-chat-me';
+        innerDiv.style = 'text-align: right;';
+
+        // Create the content for the inner div
+        var innerContent = document.createElement('div');
+        innerContent.className = 'font-weight-bold mb-1 text-dark';
+        innerContent.innerHTML = 'You <span class="text-muted small text-nowrap mx-2">' + convertDatetime2ToJSDate(message.created).toLocaleString() + '</span>';
+
+        // Create the message text
+        var messageText = document.createTextNode(message.text);
+
+        // Append the elements to construct the hierarchy
+        innerDiv.appendChild(innerContent);
+        innerDiv.appendChild(messageText);
+        mainDiv.appendChild(img);
+        mainDiv.appendChild(innerDiv);
+
+        // Append the mainDiv to the messageContainer
+        var messageContainer = document.getElementById('messageContainer');
+        messageContainer.prepend(mainDiv)
+    }
+    function otherBlockLazy(message) {
+        // Create a div element for the main container
+        var mainDiv = document.createElement('div');
+        mainDiv.className = 'pb-4';
+        mainDiv.style = 'clear: both; width: 100%;';
+
+        // Create an image element
+        var img = document.createElement('img');
+        img.src = message.sender.imagePath;
+        img.className = 'rounded-circle mr-1 d-none d-md-inline';
+        img.alt = 'Chris Wood';
+        img.width = '50';
+        img.height = '50';
+
+        // Create a div element for the inner content
+        var innerDiv = document.createElement('div');
+        innerDiv.style = 'text-align: left;';
+        innerDiv.className = 'bg-chat-other flex-shrink-1 rounded py-2 px-3';
+
+        // Create the content for the inner div
+        var innerContent = document.createElement('div');
+        innerContent.className = 'font-weight-bold mb-1 text-dark';
+        innerContent.innerHTML = message.sender.lastName.toString() + ' ' + message.sender.firstName.toString() + ' <span class="text-muted small text-nowrap mx-2">' + convertDatetime2ToJSDate(message.created).toLocaleString() + '</span>';
+
+        // Create the message text
+        var messageText = document.createTextNode(message.text);
+
+        // Append the elements to construct the hierarchy
+        innerDiv.appendChild(innerContent);
+        innerDiv.appendChild(messageText);
+        mainDiv.appendChild(img);
+        mainDiv.appendChild(innerDiv);
+
+        innerDiv.appendChild(innerContent);
+        innerDiv.appendChild(messageText);
+        mainDiv.appendChild(img);
+        mainDiv.appendChild(innerDiv);
+
+        // Append the mainDiv to the messageContainer
+        var messageContainer = document.getElementById('messageContainer');
+        messageContainer.prepend(mainDiv)
+    }
+    function addMyMessageBlock(message) {
+        // Create a div element for the main container
+        var mainDiv = document.createElement('div');
+        mainDiv.className = 'pb-4';
+        mainDiv.style = 'float: right; width: 100%; text-align: right; ';
+
+        // Create an image element
+        var img = document.createElement('img');
+        img.src = "@User.FindFirst("Image")?.Value";
+        img.className = 'rounded-circle mr-1 d-none d-md-inline';
+        img.alt = 'Chris Wood';
+        img.width = '50';
+        img.height = '50';
+
+        // Create a div element for the inner content
+        var innerDiv = document.createElement('div');
+        innerDiv.className = 'flex-shrink-1 rounded py-2 px-3 bg-chat-me';
+        innerDiv.style = 'text-align: right;';
+
+        // Create the content for the inner div
+        var innerContent = document.createElement('div');
+        innerContent.className = 'font-weight-bold mb-1 text-dark';
+        innerContent.innerHTML = 'You <span class="text-muted small text-nowrap mx-2">@(DateTime.Now.ToString("G"))</span>';
+
+        // Create the message text
+        var messageText = document.createTextNode(message.text);
+
+        // Append the elements to construct the hierarchy
+        innerDiv.appendChild(innerContent);
+        innerDiv.appendChild(messageText);
+        mainDiv.appendChild(img);
+        mainDiv.appendChild(innerDiv);
+
+        // Append the mainDiv to the messageContainer
+        var messageContainer = document.getElementById('messageContainer');
+        messageContainer.appendChild(mainDiv);
+    }
+    function otherBlock(message) {
+        // Create a div element for the main container
+        var mainDiv = document.createElement('div');
+        mainDiv.className = 'pb-4';
+        mainDiv.style = 'clear: both; width: 100%;';
+
+        // Create an image element
+        var img = document.createElement('img');
+        img.src = message.sender.imagePath;
+        img.className = 'rounded-circle mr-1 d-none d-md-inline';
+        img.alt = 'Chris Wood';
+        img.width = '50';
+        img.height = '50';
+
+        // Create a div element for the inner content
+        var innerDiv = document.createElement('div');
+        innerDiv.style = 'text-align: left;';
+        innerDiv.className = 'bg-chat-other flex-shrink-1 rounded py-2 px-3';
+
+        // Create the content for the inner div
+        var innerContent = document.createElement('div');
+        innerContent.className = 'font-weight-bold mb-1 text-dark';
+        innerContent.innerHTML = message.sender.lastName.toString() + ' ' + message.sender.firstName.toString() + ' <span class="text-muted small text-nowrap mx-2">@(DateTime.Now.ToString("G"))</span>';
+
+        // Create the message text
+        var messageText = document.createTextNode(message.text);
+
+        // Append the elements to construct the hierarchy
+        innerDiv.appendChild(innerContent);
+        innerDiv.appendChild(messageText);
+        mainDiv.appendChild(img);
+        mainDiv.appendChild(innerDiv);
+
+        innerDiv.appendChild(innerContent);
+        innerDiv.appendChild(messageText);
+        mainDiv.appendChild(img);
+        mainDiv.appendChild(innerDiv);
+
+        // Append the mainDiv to the messageContainer
+        var messageContainer = document.getElementById('messageContainer');
+        messageContainer.appendChild(mainDiv);
+    }
+</script>

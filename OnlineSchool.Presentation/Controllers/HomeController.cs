@@ -37,6 +37,14 @@ namespace OnlineSchool.Presentation.Controllers
         {
             return View();
         }
+        [Route("/private/{recieverId}")]
+        public async Task<IActionResult> PrivateChat(string recieverId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == recieverId);
+            if (user == null)
+                return RedirectToAction("Custom404", "Home");
+            return View(user);
+        }
 
         public async Task<IActionResult> PersonalCabnet()
         {
