@@ -69,6 +69,10 @@ namespace OnlineSchool.Presentation.Controllers
         {
             return View();
         }
+        public async Task<IActionResult> SubjectRegister()
+        {
+            return View();
+        }
 
         public async Task<IActionResult> Schedule()
         {

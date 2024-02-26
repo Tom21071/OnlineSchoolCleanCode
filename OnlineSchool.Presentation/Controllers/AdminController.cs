@@ -65,17 +65,13 @@ namespace OnlineSchool.Presentation.Controllers
 
                 if (result.Succeeded)
                 {
-                    _context.UserClaims.Add(new IdentityUserClaim<string> { UserId = user.Id, ClaimType = "Image", ClaimValue = user.ImagePath });
                     await _userManager.AddClaimAsync(user, new Claim("Image", user.ImagePath));
-                    //await _signInManager.SignInAsync(user, isPersistent: false);
-                    //return RedirectToAction("Classes", "Home"); // Redirect to the desired page after registration
                     _context.UserRoles.Add(new IdentityUserRole<string> { RoleId = model.Role, UserId = _context.Users.FirstOrDefault(x => x.Email == model.Email).Id });
                     _context.SaveChanges();
                     return RedirectToAction("AddedUser", "Admin");
                 }
                 foreach (var error in result.Errors)
                     ModelState.AddModelError(string.Empty, error.Description);
-
             }
             var rolesInDb = _context.Roles.ToList();
             List<SelectListItem> roles = new List<SelectListItem>();

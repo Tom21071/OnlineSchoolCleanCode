@@ -11,7 +11,15 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(@"Data Source=DESKTOP-DGU940A\SQLEXPRESS;Initial Catalog=OnlineSchoolSb;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False")); builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>();
+    options.UseSqlServer(@"Data Source=DESKTOP-DGU940A\SQLEXPRESS;Initial Catalog=OnlineSchoolSb;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False"));
+builder.Services.AddIdentity<AppUser, IdentityRole>(opt =>
+{
+    //previous code removed for clarity reasons
+    opt.Lockout.AllowedForNewUsers = true;
+    opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+    opt.Lockout.MaxFailedAccessAttempts = 3;
+
+}).AddEntityFrameworkStores<AppDbContext>();
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Login/Login"; // Specify the route to your custom login page.

@@ -1,8 +1,8 @@
 ﻿@{
     Layout = "~/Views/Shared/_NotLoggedLayout.cshtml";
+
 }
 @model LoginViewModel
-
 <main>
     <div class="container">
         <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
@@ -14,6 +14,12 @@
                                 <div class="pt-4 pb-2">
                                     <h5 class="card-title text-center pb-0 fs-3">Login</h5>
                                     <p class="text-center small">Enter your email & password to login</p>
+                                </div>
+                                <div class="text-center text-danger">
+                                    @if (ViewBag.Error != null)
+                                    {
+                                        @ViewBag.Error
+                                    }
                                 </div>
                                 <form asp-action="Login" asp-controller="Login" method="post" asp-validation-summary="All" class="row g-3">
                                     <div class="text-danger">@ViewBag.LoginError</div>
@@ -28,15 +34,13 @@
                                     <div class="col-12">
                                         <button type="submit" class="btn btn-primary w-100 mt-2">Log in</button>
                                     </div>
-                                   
+
                                 </form>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </section>
-
     </div>
 </main><!-- End #main -->

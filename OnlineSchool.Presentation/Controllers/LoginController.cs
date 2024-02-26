@@ -28,23 +28,29 @@ namespace OnlineSchool.Presentation.Controllers
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user != null)
+            {
+                var result = await _signInManager.PasswordSignInAsync(user, model.Password, true, true);
 
-            if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
-            {
-                await _signInManager.SignInAsync(user, isPersistent: false);
-                return RedirectToAction("Dashboard", "Home");
+                if (result.Succeeded)
+                {
+                    await _signInManager.SignInAsync(user, isPersistent: true);
+                    return RedirectToAction("Dashboard", "Home");
+                }
+                if (result.IsLockedOut)
+                {
+                    ViewBag.Error = "Too many login attempts, you can try again in 10 minutes";
+                    return View();
+                }
             }
-            else
-            {
-                ViewBag.LoginError = "login or password is incorrect";
-                return View(model);
-            }
+            ViewBag.Error = "Wrong credentials";
+            return View();
         }
 
         [Authorize]
         public async Task<IActionResult> LogOut()
         {
-           await _signInManager.SignOutAsync();
+            await _signInManager.SignOutAsync();
             return RedirectToAction("Login", "Login");
         }
     }
