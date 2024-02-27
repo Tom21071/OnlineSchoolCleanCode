@@ -26,7 +26,7 @@ namespace OnlineSchool.Presentation.Hubs
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == _httpContextAccessor.HttpContext.User.Identity.Name);
             connectedUsers.Add(new ConnectedUser { UserId = user.Id, ConnectionId = Context.ConnectionId });
-            await _context.PrivateMessages.Where(x => x.RecieverId == user.Id && x.IsRead == false).ForEachAsync(x=>x.IsRead = true);
+            await _context.PrivateMessages.Where(x => x.RecieverId == user.Id && x.IsRead == false).ForEachAsync(x => x.IsRead = true);
             await _context.SaveChangesAsync();
         }
 
@@ -40,7 +40,12 @@ namespace OnlineSchool.Presentation.Hubs
             if (recipientUser != null)
             {
                 message.IsRead = true;
-                await Clients.Client(recipientUser.ConnectionId).SendAsync("GetPrivateMesssage", message);
+
+                List<ConnectedUser> openConnections = connectedUsers.Where(x => x.UserId == recieverId).ToList();
+                foreach (var item in openConnections)
+                {
+                    await Clients.Client(item.ConnectionId).SendAsync("GetPrivateMesssage", message);
+                }
             }
             await Clients.Caller.SendAsync("GetPrivateMesssage", message);
 
@@ -63,7 +68,7 @@ namespace OnlineSchool.Presentation.Hubs
         public override Task OnDisconnectedAsync(Exception? exception)
         {
             var user = _context.Users.FirstOrDefault(x => x.Email == _httpContextAccessor.HttpContext.User.Identity.Name);
- 
+
             Console.WriteLine(connectedUsers.Remove(connectedUsers.FirstOrDefault(x => x.UserId == user.Id)).ToString());
 
             return base.OnDisconnectedAsync(exception);

@@ -14,7 +14,7 @@ namespace OnlineSchool.Domain.Contexts
             _options = options;
         }
 
-        public DbSet<UserSubjectMark> UserSubjectMark { get; set; }
+        public DbSet<UserSubjectDateMark> UserSubjectMark { get; set; }
         public DbSet<SubjectMessage> SubjectMessages { get; set; }
         public DbSet<PrivateMessage> PrivateMessages { get; set; }
         public DbSet<Class> Classes { get; set; }
@@ -23,7 +23,8 @@ namespace OnlineSchool.Domain.Contexts
         public DbSet<Lesson> Lessons { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<UserNotification> UserNotifications { get; set; }
-        public DbSet<UserSubjectMark> UserSubjectMarks { get; set; }
+        public DbSet<SubjectDate> SubjectDates { get; set; }
+        public DbSet<UserSubjectDateMark> UserSubjectDateMarks { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -40,7 +41,7 @@ namespace OnlineSchool.Domain.Contexts
             modelBuilder.Entity<UserClass>().HasKey(uc => new { uc.UserId, uc.ClassId });
             modelBuilder.Entity<UserNotification>().HasKey(uc => new { uc.RecieverId, uc.NotificationId });
             modelBuilder.Entity<Lesson>().HasKey(l => new { l.Start, l.End, l.SubjectId, l.ClassId, l.DayOfTheWeek });
-            modelBuilder.Entity<UserSubjectMark>().HasKey(l => new { l.UserId, l.SubjectId, l.CreatedAt });
+            modelBuilder.Entity<UserSubjectDateMark>().HasKey(l => new { l.UserId, l.SubjectDateId});
         }
     }
 }

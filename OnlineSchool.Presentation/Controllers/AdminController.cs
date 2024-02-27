@@ -26,6 +26,7 @@ namespace OnlineSchool.Presentation.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> RegisterUser()
         {
             var rolesInDb = await _context.Roles.ToListAsync();
@@ -44,6 +45,8 @@ namespace OnlineSchool.Presentation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
+
         public async Task<IActionResult> RegisterUser(RegisterViewModel model)
         {
             if (_context.Users.Any(u => u.IDNP == model.IDNP))
