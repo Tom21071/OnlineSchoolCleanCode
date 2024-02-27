@@ -11,7 +11,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(@"Data Source=DESKTOP-DGU940A\SQLEXPRESS;Initial Catalog=OnlineSchoolSb;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False"));
+    options.UseSqlServer(@"Data Source=DESKTOP-DGU940A\SQLEXPRESS;Initial Catalog=OnlineSchoolDb;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False"));
 builder.Services.AddIdentity<AppUser, IdentityRole>(opt =>
 {
     //previous code removed for clarity reasons

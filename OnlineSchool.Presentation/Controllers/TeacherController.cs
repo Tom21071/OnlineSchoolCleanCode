@@ -65,15 +65,29 @@ namespace OnlineSchool.Presentation.Controllers
             return View();
         }
 
-        public async Task<IActionResult> ClassRegister()
+        public async Task<IActionResult> TeacherRegisters()
         {
-            return View();
+            var teacher = await _context.Users.FirstOrDefaultAsync(x => x.Email == User.Identity.Name);
+            if (teacher != null)
+            {
+                List<Subject> subjects = _context.Subjects.Where(x => x.TeacherId == teacher.Id).Include(x=>x.Class).ToList();
+                return View(subjects);
+            }
+            return RedirectToAction("Custom404", "Home");
         }
-        public async Task<IActionResult> SubjectRegister()
+        public async Task<IActionResult> SubjectRegister(int subjectId)
         {
-            return View();
+            var teacher = await _context.Users.FirstOrDefaultAsync(x => x.Email == User.Identity.Name);
+            Subject? subject = await _context.Subjects.FirstOrDefaultAsync(x => x.Id == subjectId);
+            if (subject == null || subject.TeacherId != teacher.Id)
+            {
+                return RedirectToAction("Custom404", "Home");
+            }
+            Class? c = await _context.Classes.FirstOrDefaultAsync(x => x.Id == subject.ClassId);
+            List<UserClass> classUsers = _context.UserClasses.Where(x => x.ClassId == c.Id).Include(x => x.User).OrderBy(x => x.User.LastName).ToList();
+            ViewBag.SubjectId = subjectId;
+            return View(classUsers);
         }
-
         public async Task<IActionResult> Schedule()
         {
             List<ScheduleModel> scheduleModels = new List<ScheduleModel>();

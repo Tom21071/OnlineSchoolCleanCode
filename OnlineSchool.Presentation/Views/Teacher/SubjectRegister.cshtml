@@ -1,4 +1,6 @@
-﻿<main id="main" class="main">
+﻿ @model List<UserClass>
+
+<main id="main" class="main">
     <div class="container mt-5">
         <table class="table table-bordered">
             <thead>
@@ -12,46 +14,19 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <th scope="row">Alex</th>
-                    <td>10</td>
-                    <td></td>
-                    <td>8</td>
-                    <td>7</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <th scope="row">Bob</th>
-                    <td></td>
-                    <td>5</td>
-                    <td>8</td>
-                    <td></td>
-                    <td>10</td>
-                </tr>
-                <tr>
-                    <th scope="row">Cameron</th>
-                    <td></td>
-                    <td></td>
-                    <td>4</td>
-                    <td></td>
-                    <td>a</td>
-                </tr>
-                <tr>
-                    <th scope="row">Danny</th>
-                    <td>7</td>
-                    <td></td>
-                    <td></td>
-                    <td>a</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <th scope="row">Eric</th>
-                    <td>a</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <th scope="row">@item.User.LastName @item.User.FirstName</th>
+                        <td>10</td>
+                        <td></td>
+                        <td>8</td>
+                        <td>7</td>
+                        <td></td>
+                    </tr>
+                }
+
             </tbody>
         </table>
         <nav aria-label="Page navigation example" class="text-dark text-end">
