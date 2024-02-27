@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using OnlineSchool.Domain.Contexts;
 using OnlineSchool.Domain.Entities;
 
+
+
 namespace OnlineSchool.Presentation.Hubs
 {
     public class ConnectedUser
