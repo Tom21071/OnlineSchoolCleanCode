@@ -59,16 +59,6 @@ namespace OnlineSchool.Presentation.Controllers
                     userClasses = await _context.UserClasses.Include(u => u.Class).Where(x => x.UserId == user.Id).ToListAsync();
                     return View(userClasses);
                 }
-                else if (User.IsInRole("Teacher"))
-                {
-                    var teacherId = (await _context.Users.FirstOrDefaultAsync(x => x.Email == User.Identity.Name)).Id;
-                    var classes = _context.Classes.Where(x => x.TeacherId == teacherId);
-                    foreach (var item in classes)
-                    {
-                        userClasses.Add(new UserClass { ClassId = item.Id, Class = item, UserId = teacherId });
-                    }
-                    return View(userClasses);
-                }
                 return View(userClasses);
             }
             return RedirectToAction("Login");
@@ -82,11 +72,7 @@ namespace OnlineSchool.Presentation.Controllers
 
                 if (User.IsInRole("Student"))
                     if (await _context.UserClasses.FirstOrDefaultAsync(x => x.UserId == user.Id && x.ClassId == classId) == null)
-                        return Forbid();
-
-                if (User.IsInRole("Teacher"))
-                    if (await _context.Classes.FirstOrDefaultAsync(x => x.TeacherId == user.Id && x.Id == classId) == null)
-                        return Forbid();
+                        return RedirectToAction("YouDontBelong", "Home");
 
                 ClassSubjectsModel classSubjectsModel = new ClassSubjectsModel();
                 classSubjectsModel.Subjects = await _context.Subjects.Include(u => u.Class).Where(x => x.ClassId == classId).ToListAsync();

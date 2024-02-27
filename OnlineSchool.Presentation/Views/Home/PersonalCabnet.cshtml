@@ -4,17 +4,14 @@
 
     <div class="pagetitle">
         <h1>Profile</h1>
-
     </div><!-- End Page Title -->
-
     <section class="section profile">
         <div class="row">
             <div class="col-xl-4">
-
                 <div class="card">
                     <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
                         <img src=@Model.User.ImagePath />
-                        <h2>Kevin Anderson</h2>
+                        <h2>@Model.User.FirstName @Model.User.LastName</h2>
                         @if (User.IsInRole("Admin"))
                         {
                             <span class="bg-danger text-light fw-bold px-2 rounded">Admin</span>
@@ -37,22 +34,6 @@
                     </div>
                 </div>
                 <div class="row">
-                    @if (User.IsInRole("Admin"))
-                    {
-                        <div class="col-12 col-md-4">
-                            <a class="btn btn-outline-danger w-100 mt-1" asp-action="AddClass" asp-controller="Admin">Add a Class</a>
-
-                        </div>
-                        <div class="col-12 col-md-4">
-                            <a class="btn btn-outline-danger w-100  mt-1" asp-action="RegisterUser" asp-controller="Admin">Register User</a>
-
-                        </div>
-                        <div class="col-12 col-md-4">
-                            <a class="btn btn-outline-danger w-100  mt-1" asp-action="ManageClasses" asp-controller="Admin">Manage Classes</a>
-
-                        </div>
-
-                    }
                     @if (User.IsInRole("Teacher"))
                     {
                         <div class="col-12 col-md-6 mb-1">
@@ -91,7 +72,7 @@
 
                             <div class="tab-pane fade show active profile-overview" id="profile-overview">
                                 <h5 class="card-title">About</h5>
-                                <p class="small fst-italic">Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatis odit. Fuga sequi sed ea saepe at unde.</p>
+                                <p class="small fst-italic">This is your personal cabnet where you can see information about you and if needed you can chage it anytime.</p>
 
                                 <h5 class="card-title">Profile Details</h5>
 
@@ -110,15 +91,22 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-lg-3 col-md-4 label">Job</div>
-                                    <div class="col-lg-9 col-md-8">Web Designer</div>
-                                </div>
+                                    <div class="col-lg-3 col-md-4 label">Role</div>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <div class="col-lg-9 col-md-8">Admin</div>
+                                    }
+                                    else if (User.IsInRole("Student"))
+                                    {
+                                        <div class="col-lg-9 col-md-8">Student</div>
+                                    }
+                                    else if (User.IsInRole("Teacher"))
+                                    {
+                                        <div class="col-lg-9 col-md-8">Teacher</div>
+                                    }
 
-                                <div class="row">
-                                    <div class="col-lg-3 col-md-4 label">Country</div>
-                                    <div class="col-lg-9 col-md-8">USA</div>
-                                </div>
 
+                                </div>
                                 <div class="row">
                                     <div class="col-lg-3 col-md-4 label">Address</div>
                                     <div class="col-lg-9 col-md-8">A108 Adam Street, New York, NY 535022</div>
@@ -131,7 +119,7 @@
 
                                 <div class="row">
                                     <div class="col-lg-3 col-md-4 label">Email</div>
-                                    <div class="col-lg-9 col-md-8">k.anderson@example.com</div>
+                                    <div class="col-lg-9 col-md-8">@Model.User.Email</div>
                                 </div>
 
                             </div>
@@ -164,28 +152,6 @@
                                             <textarea name="about" class="form-control" id="about" style="height: 100px">Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatis odit. Fuga sequi sed ea saepe at unde.</textarea>
                                         </div>
                                     </div>
-
-                                    <div class="row mb-3">
-                                        <label for="company" class="col-md-4 col-lg-3 col-form-label">Company</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="company" type="text" class="form-control" id="company" value="Lueilwitz, Wisoky and Leuschke">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="Job" class="col-md-4 col-lg-3 col-form-label">Job</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="job" type="text" class="form-control" id="Job" value="Web Designer">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="Country" class="col-md-4 col-lg-3 col-form-label">Country</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="country" type="text" class="form-control" id="Country" value="USA">
-                                        </div>
-                                    </div>
-
                                     <div class="row mb-3">
                                         <label for="Address" class="col-md-4 col-lg-3 col-form-label">Address</label>
                                         <div class="col-md-8 col-lg-9">

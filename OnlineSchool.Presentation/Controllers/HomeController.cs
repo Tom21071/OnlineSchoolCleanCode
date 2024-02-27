@@ -62,6 +62,11 @@ namespace OnlineSchool.Presentation.Controllers
             return View();
         }
 
+        public async Task<IActionResult> YouDontBelong()
+        {
+            return View();
+        }
+
         [HttpPost]
         public async Task SawNotification(int Id)
         {
@@ -136,16 +141,16 @@ namespace OnlineSchool.Presentation.Controllers
             if (user != null)
             {
                 Subject subject = await _context.Subjects.FirstOrDefaultAsync(x => x.Id == subjectId);
-                if (subject == null) return Forbid();
+                if (subject == null) return RedirectToAction("YouDontBelong", "Home");
 
                 if (User.IsInRole("Student"))
-                    if (_context.UserClasses.FirstOrDefault(x => x.UserId == user.Id && x.ClassId == subject.ClassId) == null) return Forbid();
+                    if (_context.UserClasses.FirstOrDefault(x => x.UserId == user.Id && x.ClassId == subject.ClassId) == null) return RedirectToAction("YouDontBelong","Home");
 
                 if (User.IsInRole("Teacher"))
-                    if (_context.Subjects.FirstOrDefault(x => x.TeacherId == user.Id && x.Id == subject.Id) == null) return Forbid();
+                    if (_context.Subjects.FirstOrDefault(x => x.TeacherId == user.Id && x.Id == subject.Id) == null) return RedirectToAction("YouDontBelong", "Home");
             }
             else
-                return Forbid();
+                return RedirectToAction("YouDontBelong", "Home");
             ViewBag.SubjectId = subjectId;
             var messages = GetMessages(0, 5, subjectId);
             return View(messages);
