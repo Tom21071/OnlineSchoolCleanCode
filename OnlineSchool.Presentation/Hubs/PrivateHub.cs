@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using OnlineSchool.Domain.Contexts;
 using OnlineSchool.Domain.Entities;
 
-
-
 namespace OnlineSchool.Presentation.Hubs
 {
     public class ConnectedUser
@@ -28,8 +26,6 @@ namespace OnlineSchool.Presentation.Hubs
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == _httpContextAccessor.HttpContext.User.Identity.Name);
             connectedUsers.Add(new ConnectedUser { UserId = user.Id, ConnectionId = Context.ConnectionId });
-            await _context.PrivateMessages.Where(x => x.RecieverId == user.Id && x.IsRead == false).ForEachAsync(x => x.IsRead = true);
-            await _context.SaveChangesAsync();
         }
 
         public async Task SendMessage(string text, string recieverId)

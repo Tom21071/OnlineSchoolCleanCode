@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OnlineSchool.Domain.Contexts;
@@ -24,6 +25,23 @@ namespace OnlineSchool.Presentation.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
         }
+
+
+        public override void OnActionExecuted(ActionExecutedContext context)
+        {
+            var userId = _context.Users.FirstOrDefault(u => u.Email == User.Identity.Name).Id;
+            List<PrivateMessage> messages = _context.PrivateMessages.Where(x => x.RecieverId == userId && x.IsRead == false).Include(x => x.Sender).OrderByDescending(x => x.Created).ToList();
+            List<string> ids = messages.Select(x => x.SenderId).Distinct().ToList();
+            List<PrivateMessage> uniqueMessages = new List<PrivateMessage>();
+            foreach (var item in ids)
+                uniqueMessages.Add(messages.FirstOrDefault(x => x.SenderId == item));
+
+            ViewBag.Messages = uniqueMessages;
+            ViewBag.Notifications = _context.UserNotifications.Include(x => x.Notification)
+       .Where(x => x.IsRead == false && x.RecieverId == userId).ToList();
+            base.OnActionExecuted(context);
+        }
+
 
         [HttpGet]
         [AllowAnonymous]

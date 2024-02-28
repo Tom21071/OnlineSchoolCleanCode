@@ -55,7 +55,8 @@
                     <a class="nav-link nav-icon search-bar-toggle " href="#">
                         <i class="bi bi-search"></i>
                     </a>
-                </li><!-- End Search Icon-->
+                </li>
+                <!-- End Search Icon-->
                 @if (ViewBag.Notifications != null && ViewBag.Notifications.Count > 0)
                 {
                     <li class="nav-item dropdown">
@@ -80,7 +81,7 @@
                                     <div class="w-100">
                                         <p>@item.Notification.Title</p>
                                         <p>@item.Notification.Description </p>
-                                        <p>30 min. ago</p>
+                                        <p>@item.Notification.CreatedAt.ToString("g")</p>
                                     </div>
                                     <div class="d-flex w-100 justify-content-end"><a class="btn" onclick="SawNotification(@item.Notification.Id)"><i class="bi bi-x text-secondary"></i></a> </div>
                                 </li>
@@ -108,72 +109,63 @@
                     <!-- End Notification Nav -->
                 }
 
-                <li class="nav-item dropdown">
+                 @if (ViewBag.Messages != null && ViewBag.Messages.Count > 0)
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-chat-left-text"></i>
+                            <span class="badge bg-success badge-number">@ViewBag.Messages.Count</span>
+                        </a><!-- End Messages Icon -->
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
+                            <li class="dropdown-header">
+                                You have @ViewBag.Messages.Count new messages
+                                <a href="#"><span class="badge rounded-pill bg-danger p-2 ms-2">View all</span></a>
+                            </li>
 
-                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
-                        <i class="bi bi-chat-left-text"></i>
-                        <span class="badge bg-success badge-number">3</span>
-                    </a><!-- End Messages Icon -->
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
 
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
-                        <li class="dropdown-header">
-                            You have 3 new messages
-                            <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
+                            @foreach (var item in ViewBag.Messages)
+                            {
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
 
-                        <li class="message-item">
-                            <a href="#">
-                                <img src="~/assets/img/messages-1.jpg" alt="" class="rounded-circle">
-                                <div>
-                                    <h4>Maria Hudson</h4>
-                                    <p>Velit asperiores et ducimus soluta repudiandae labore officia est ut...</p>
-                                    <p>4 hrs. ago</p>
-                                </div>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
+                                <li class="message-item">
+                                    <a asp-action="PrivateChat" asp-controller="Home" asp-route-recieverId="@item.SenderId">
+                                        <img src="~/assets/img/messages-3.jpg" alt="" class="rounded-circle">
+                                        <div>
+                                            <h4>@item.Sender.FirstName @item.Sender.LastName</h4>
+                                            <p>@item.Text</p>
+                                            <p>@item.Created.ToString("g")</p>
+                                        </div>
+                                    </a>
+                                </li>
+                            }
 
-                        <li class="message-item">
-                            <a href="#">
-                                <img src="~/assets/img/messages-2.jpg" alt="" class="rounded-circle">
-                                <div>
-                                    <h4>Anna Nelson</h4>
-                                    <p>Velit asperiores et ducimus soluta repudiandae labore officia est ut...</p>
-                                    <p>6 hrs. ago</p>
-                                </div>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
+                        </ul><!-- End Messages Dropdown Items -->
 
-                        <li class="message-item">
-                            <a href="#">
-                                <img src="~/assets/img/messages-3.jpg" alt="" class="rounded-circle">
-                                <div>
-                                    <h4>David Muldon</h4>
-                                    <p>Velit asperiores et ducimus soluta repudiandae labore officia est ut...</p>
-                                    <p>8 hrs. ago</p>
-                                </div>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
+                    </li><!-- End Messages Nav -->
+                }
+                else
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-chat-left-text"></i>
+                            <span class="badge bg-success badge-number"></span>
+                        </a><!-- End Messages Icon -->
 
-                        <li class="dropdown-footer">
-                            <a href="#">Show all messages</a>
-                        </li>
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
+                            <li class="dropdown-header">
+                                You have 0 new messages
+                                <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
+                            </li>
 
-                    </ul><!-- End Messages Dropdown Items -->
-
-                </li><!-- End Messages Nav -->
-
+                        </ul><!-- End Notification Dropdown Items -->
+                    </li>
+                    <!-- End Notification Nav -->
+                }
                 <li class="nav-item dropdown pe-3">
 
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
@@ -265,6 +257,13 @@
                     <span>My Registers</span>
                 </a>
             </li><!-- End Register Page Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" asp-action="SendNotification" asp-controller="Teacher">
+                    <i class="bi bi-journal"></i>
+                    <span>Send Notification</span>
+                </a>
+            </li>
 
             <li class="nav-item">
                 <a class="nav-link collapsed" asp-action="Schedule" asp-controller="Teacher">
