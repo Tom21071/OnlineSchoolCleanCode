@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using OnlineSchool.Application.EncryptionServiceInterface;
 using OnlineSchool.Domain.Contexts;
 using OnlineSchool.Domain.Entities;
 
@@ -16,11 +17,13 @@ namespace OnlineSchool.Presentation.Hubs
         private readonly AppDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private static List<ConnectedUser> connectedUsers = new List<ConnectedUser>();
+        private readonly IEncryptionService _encryptionService;
 
-        public PrivateHub(AppDbContext context, IHttpContextAccessor httpContextAccessor)
+        public PrivateHub(AppDbContext context, IHttpContextAccessor httpContextAccessor, IEncryptionService encryptionService)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
+            _encryptionService = encryptionService;
         }
         public async Task OnConnectedAsync(string recieverId)
         {
@@ -47,6 +50,9 @@ namespace OnlineSchool.Presentation.Hubs
             }
             await Clients.Caller.SendAsync("GetPrivateMesssage", message);
 
+            //encryption and convert to string
+            message.Text = Convert.ToBase64String(_encryptionService.EncryptMessage(message.Text));
+
             await _context.PrivateMessages.AddAsync(message);
             await _context.SaveChangesAsync();
         }
@@ -54,13 +60,19 @@ namespace OnlineSchool.Presentation.Hubs
         public void LoadMoreMessages(string recieverId, int skip)
         {
             var user = _context.Users.FirstOrDefault(x => x.Email == _httpContextAccessor.HttpContext.User.Identity.Name);
+
             Clients.Caller.SendAsync("GetMessages", GetMessages(skip, 5, user.Id, recieverId));
         }
 
         public List<PrivateMessage> GetMessages(int skip, int amount, string senderId, string recieverId)
         {
             var baseQuery = _context.PrivateMessages.Include(u => u.Sender).Where(x => (x.RecieverId == recieverId && x.SenderId == senderId) || (x.RecieverId == senderId && x.SenderId == recieverId)).OrderByDescending(x => x.Created);
-            return baseQuery.Skip(skip).Take(amount).ToList();
+            var takenMessages = baseQuery.Skip(skip).Take(amount).ToList();
+
+            foreach (var m in takenMessages)
+                m.Text = _encryptionService.DecryptMessage(Convert.FromBase64String(m.Text));
+
+            return takenMessages;
         }
 
         public override Task OnDisconnectedAsync(Exception? exception)

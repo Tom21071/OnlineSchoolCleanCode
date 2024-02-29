@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+using OnlineSchool.Application.EncryptionServiceInterface;
 using OnlineSchool.Domain.Contexts;
 using OnlineSchool.Domain.Entities;
 using OnlineSchool.Presentation.Hubs;
@@ -18,12 +19,14 @@ namespace OnlineSchool.Presentation.Controllers
         private readonly AppDbContext _context;
         public UserManager<AppUser> _userManager;
         public SignInManager<AppUser> _signInManager;
+        private readonly IEncryptionService _encryptionService;
 
-        public HomeController(AppDbContext context, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+        public HomeController(AppDbContext context, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IEncryptionService encryptionService)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
+            _encryptionService = encryptionService;
         }
 
         public override void OnActionExecuted(ActionExecutedContext context)
@@ -174,9 +177,13 @@ namespace OnlineSchool.Presentation.Controllers
 
         public List<SubjectMessage> GetMessages(int skip, int amount, int subjectId)
         {
-
             var baseQuery = _context.SubjectMessages.Include(u => u.User).Where(x => x.SubjectId == subjectId).OrderByDescending(x => x.Created);
-            return baseQuery.Skip(skip).Take(amount).OrderBy(x => x.Created).ToList();
+            var takenMessages = baseQuery.Skip(skip).Take(amount).OrderBy(x => x.Created).ToList();
+            foreach (var m in takenMessages)
+            {
+                m.Text = _encryptionService.DecryptMessage(Convert.FromBase64String(m.Text));
+            }
+            return takenMessages;
         }
     }
 }

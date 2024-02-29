@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OnlineSchool.Domain\OnlineSchool.Domain.csproj" />
+    <ProjectReference Include="..\OnlineSchool.Infrastructure\OnlineSchool.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

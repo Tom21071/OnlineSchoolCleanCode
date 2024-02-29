@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using OnlineSchool.Application.EncryptionServiceInterface;
 using OnlineSchool.Domain.Contexts;
 using OnlineSchool.Domain.Entities;
+using OnlineSchool.Infrastructure.EncryptionServiceImplementation;
 using OnlineSchool.Presentation.Hubs;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddSignalR();
-
+builder.Services.AddTransient<IEncryptionService,EncryptionService>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(@"Data Source=DESKTOP-DGU940A\SQLEXPRESS;Initial Catalog=OnlineSchoolDb;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False"));
 builder.Services.AddIdentity<AppUser, IdentityRole>(opt =>
