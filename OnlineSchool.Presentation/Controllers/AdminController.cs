@@ -133,7 +133,7 @@ namespace OnlineSchool.Presentation.Controllers
             subject1.Title = subject.SubjectName;
             subject1.TeacherId = subject.TeacherId;
             subject1.ClassId = subject.ClassId;
-
+            subject1.ImagePath = "https://static.thenounproject.com/png/3282617-200.png";
             await _context.Subjects.AddAsync(subject1);
             await _context.SaveChangesAsync();
             return RedirectToAction("AddSubject", "Admin");

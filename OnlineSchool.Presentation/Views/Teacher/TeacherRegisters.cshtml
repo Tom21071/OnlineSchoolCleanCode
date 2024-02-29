@@ -11,8 +11,11 @@
                             <div class="card-body">
                                 <div class=" text-s font-weight-bold text-primary text-uppercase mb-1">@item.Title </div>
                                 <p class="card-text">@item.Class.Name</p>
+                                <div class="text-center"> 
+                                    <a asp-action="Chat" asp-controller="Home" asp-route-subjectId="@item.Id" class="btn btn-outline-primary mb-2">Открыть Предмет</a>
+                                </div>
                                 <div class="text-center">
-                                    <a asp-action="SubjectRegister" asp-controller="Teacher" asp-route-subjectId="@item.Id" class="btn btn-outline-success">Открыть Предмет</a>
+                                    <a asp-action="SubjectRegister" asp-controller="Teacher" asp-route-subjectId="@item.Id" class="btn btn-outline-success">Открыть Журнал</a>
                                 </div>
                             </div>
                         </div>

@@ -43,9 +43,10 @@ namespace OnlineSchool.Presentation.Hubs
                 Created = DateTime.Now
             };
 
+            await Clients.Groups(subjectId.ToString()).SendAsync("ReceiveMessage", messageDto);
+
             await _context.SubjectMessages.AddAsync(messageDto);
             await _context.SaveChangesAsync();
-            await Clients.Groups(subjectId.ToString()).SendAsync("ReceiveMessage", messageDto);
         }
 
         public async Task OnConnectedAsync(int subjectId)
