@@ -8,8 +8,8 @@ namespace OnlineSchool.Presentation.Controllers
 {
     public class LoginController : Controller
     {
-        public UserManager<AppUser> _userManager;
-        public SignInManager<AppUser> _signInManager;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
 
         public LoginController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
         {

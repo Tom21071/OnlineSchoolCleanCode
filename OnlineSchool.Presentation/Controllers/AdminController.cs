@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using OnlineSchool.Application.EncryptionServiceInterface;
 using OnlineSchool.Domain.Contexts;
 using OnlineSchool.Domain.Entities;
 using OnlineSchool.Presentation.Models.Admin;
@@ -16,14 +17,16 @@ namespace OnlineSchool.Presentation.Controllers
     public class AdminController : Controller
     {
         private readonly AppDbContext _context;
-        public UserManager<AppUser> _userManager;
-        public SignInManager<AppUser> _signInManager;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
+        private readonly IEncryptionService _encryptionService;
 
-        public AdminController(AppDbContext context, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+        public AdminController(AppDbContext context, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IEncryptionService encryptionService)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
+            _encryptionService = encryptionService;
         }
 
 
@@ -33,9 +36,12 @@ namespace OnlineSchool.Presentation.Controllers
             List<PrivateMessage> messages = _context.PrivateMessages.Where(x => x.RecieverId == userId && x.IsRead == false).Include(x => x.Sender).OrderByDescending(x => x.Created).ToList();
             List<string> ids = messages.Select(x => x.SenderId).Distinct().ToList();
             List<PrivateMessage> uniqueMessages = new List<PrivateMessage>();
-            foreach (var item in ids)
-                uniqueMessages.Add(messages.FirstOrDefault(x => x.SenderId == item));
-
+            foreach (var item in ids) 
+            {
+                var uniqueMessage = (messages.FirstOrDefault(x => x.SenderId == item));
+                uniqueMessage.Text = _encryptionService.DecryptMessage(Convert.FromBase64String(uniqueMessage.Text));
+                uniqueMessages.Add(uniqueMessage);
+            }
             ViewBag.Messages = uniqueMessages;
             ViewBag.Notifications = _context.UserNotifications.Include(x => x.Notification)
        .Where(x => x.IsRead == false && x.RecieverId == userId).ToList();

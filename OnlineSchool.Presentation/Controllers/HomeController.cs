@@ -17,8 +17,8 @@ namespace OnlineSchool.Presentation.Controllers
     public class HomeController : Controller
     {
         private readonly AppDbContext _context;
-        public UserManager<AppUser> _userManager;
-        public SignInManager<AppUser> _signInManager;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
         private readonly IEncryptionService _encryptionService;
 
         public HomeController(AppDbContext context, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IEncryptionService encryptionService)
@@ -36,8 +36,11 @@ namespace OnlineSchool.Presentation.Controllers
             List<string> ids = messages.Select(x => x.SenderId).Distinct().ToList();
             List<PrivateMessage> uniqueMessages = new List<PrivateMessage>();
             foreach (var item in ids)
-                uniqueMessages.Add(messages.FirstOrDefault(x => x.SenderId == item));
-
+            {
+                var uniqueMessage = (messages.FirstOrDefault(x => x.SenderId == item));
+                uniqueMessage.Text = _encryptionService.DecryptMessage(Convert.FromBase64String(uniqueMessage.Text));
+                uniqueMessages.Add(uniqueMessage);
+            }
             ViewBag.Messages = uniqueMessages;
             ViewBag.Notifications = _context.UserNotifications.Include(x => x.Notification)
        .Where(x => x.IsRead == false && x.RecieverId == userId).ToList();
