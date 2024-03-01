@@ -18,9 +18,9 @@
                                 if (message.User.Email == @User.Identity.Name)
                                 {
                                     <div class="pb-4" style="float: right; width: 100%; text-align: right;">
-
-                                        <img src="@message.User.ImagePath" class="rounded-circle mr-1 d-none d-md-inline" alt="Chris Wood" width="50" height="50">
-
+                                        <a data-bs-toggle="modal" onclick="openModal('@message.User.FirstName','@message.User.LastName','@message.User.ImagePath','@message.User.Id')" data-bs-target="#userModal">
+                                            <img src="@message.User.ImagePath" class="rounded-circle mr-1 d-none d-md-inline" alt="Chris Wood" width="50" height="50">
+                                        </a>
                                         <div class="flex-shrink-1 rounded py-2 px-3 bg-chat-me" style="text-align: right;">
                                             <div class="font-weight-bold mb-1 text-dark">You<span class="text-muted small text-nowrap mx-2">@message.Created.ToString("G")</span></div>
                                             @message.Text
@@ -30,7 +30,9 @@
                                 else
                                 {
                                     <div class="pb-4" style="clear: both; width: 100%;">
-                                        <img src="@message.User.ImagePath" class="rounded-circle mr-1 d-none d-md-inline" alt="Chris Wood" width="50" height="50">
+                                        <a data-bs-toggle="modal" onclick="openModal('@message.User.FirstName','@message.User.LastName','@message.User.ImagePath','@message.User.Id')" data-bs-target="#userModal">
+                                            <img src="@message.User.ImagePath" class="rounded-circle mr-1 d-none d-md-inline" alt="Chris Wood" width="50" height="50">
+                                        </a>
                                         <div>
                                             <div style="text-align: left;" class="bg-chat-other flex-shrink-1 rounded py-2 px-3">
                                                 <div class="font-weight-bold mb-1 text-dark">@message.User.FirstName @message.User.LastName<span class="text-muted small text-nowrap mx-2">@message.Created.ToString("G")</span></div>
@@ -59,7 +61,6 @@
                     </a>
                     <input type="text" id="messageInput" class="form-control shadow-none" required placeholder="Type your message">
                     <input type="text" hidden id="usernameInput" class="form-control shadow-none" value="@User.Identity.Name">
-
                     <button id="sendButton" class="btn btn-primary shadow-none">Отправить</button>
                 </div>
             </div>
@@ -67,6 +68,23 @@
     </div>
 </main>
 
+<div class="modal fade" id="userModal" tabindex="-1" data-bs-backdrop="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Profile</h5>
+            </div>
+            <div class="modal-body">
+                <img id="userImage" src="" class="rounded-circle mr-1 d-none d-md-inline" alt="Chris Wood" width="50" height="50">
+                <h5 class="modal-title" id="userModalName"></h5></br>
+                <a id="userChat" class="btn btn-light border">Private Chat</a>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.11/signalr.min.js"></script>
 
@@ -160,6 +178,16 @@
         });
     });
 
+    function openModal(firstName,lastName,imagePath,userId) {
+        var modal = document.getElementById('userModal');
+        var name = document.getElementById('userModalName');
+        var image = document.getElementById('userImage');
+        var chatBtn = document.getElementById('userChat');
+        image.src = imagePath;
+        chatBtn.href = "/private/" + userId;
+        name.innerText = firstName + " " + lastName;
+    }
+
     function addMyMessageBlock(message) {
         // Create a div element for the main container
         var mainDiv = document.createElement('div');
@@ -173,6 +201,14 @@
         img.alt = 'Chris Wood';
         img.width = '50';
         img.height = '50';
+
+        // modallink
+        var modalLink = document.createElement('a');
+        modalLink.onclick = function () {
+            openModal(message.user.firstName, message.user.lastName, message.user.imagePath, message.user.id);
+        };
+        modalLink.setAttribute('data-bs-toggle', 'modal');
+        modalLink.setAttribute('data-bs-target', '#userModal');
 
         // Create a div element for the inner content
         var innerDiv = document.createElement('div');
@@ -190,7 +226,8 @@
         // Append the elements to construct the hierarchy
         innerDiv.appendChild(innerContent);
         innerDiv.appendChild(messageText);
-        mainDiv.appendChild(img);
+        modalLink.appendChild(img);
+        mainDiv.appendChild(modalLink);
         mainDiv.appendChild(innerDiv);
 
         // Append the mainDiv to the messageContainer
@@ -212,6 +249,14 @@
         img.width = '50';
         img.height = '50';
 
+        // modallink
+        var modalLink = document.createElement('a');
+        modalLink.onclick = function () {
+            openModal(message.user.firstName, message.user.lastName, message.user.imagePath, message.user.id);
+        };
+        modalLink.setAttribute('data-bs-toggle', 'modal');
+        modalLink.setAttribute('data-bs-target', '#userModal');
+
         // Create a div element for the inner content
         var innerDiv = document.createElement('div');
         innerDiv.className = 'flex-shrink-1 rounded py-2 px-3 bg-chat-me';
@@ -228,7 +273,8 @@
         // Append the elements to construct the hierarchy
         innerDiv.appendChild(innerContent);
         innerDiv.appendChild(messageText);
-        mainDiv.appendChild(img);
+        modalLink.appendChild(img);
+        mainDiv.appendChild(modalLink);
         mainDiv.appendChild(innerDiv);
 
         // Append the mainDiv to the messageContainer
@@ -249,6 +295,14 @@
         img.alt = 'Chris Wood';
         img.width = '50';
         img.height = '50';
+
+        // modallink
+        var modalLink = document.createElement('a');
+        modalLink.onclick = function () {
+            openModal(message.user.firstName, message.user.lastName, message.user.imagePath, message.user.id);
+        };
+        modalLink.setAttribute('data-bs-toggle', 'modal');
+        modalLink.setAttribute('data-bs-target', '#userModal');
 
         // Create a div element for the inner content
         var innerDiv = document.createElement('div');
@@ -271,7 +325,8 @@
 
         innerDiv.appendChild(innerContent);
         innerDiv.appendChild(messageText);
-        mainDiv.appendChild(img);
+        modalLink.appendChild(img);
+        mainDiv.appendChild(modalLink);
         mainDiv.appendChild(innerDiv);
 
         // Append the mainDiv to the messageContainer
@@ -292,6 +347,14 @@
         img.alt = 'Chris Wood';
         img.width = '50';
         img.height = '50';
+
+        // modallink
+        var modalLink = document.createElement('a');
+        modalLink.onclick = function () {
+            openModal(message.user.firstName, message.user.lastName, message.user.imagePath, message.user.id);
+        };
+        modalLink.setAttribute('data-bs-toggle', 'modal');
+        modalLink.setAttribute('data-bs-target', '#userModal');
 
         // Create a div element for the inner content
         var innerDiv = document.createElement('div');
@@ -314,7 +377,8 @@
 
         innerDiv.appendChild(innerContent);
         innerDiv.appendChild(messageText);
-        mainDiv.appendChild(img);
+        modalLink.appendChild(img);
+        mainDiv.appendChild(modalLink);
         mainDiv.appendChild(innerDiv);
 
         // Append the mainDiv to the messageContainer
