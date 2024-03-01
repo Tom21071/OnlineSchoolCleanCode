@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace OnlineSchool.Domain.Entities
 {
@@ -10,8 +11,8 @@ namespace OnlineSchool.Domain.Entities
 
         [Required, ForeignKey("SubjectDate")]
         public int SubjectDateId { get; set; }
-        [Required]
-        public int Mark { get; set; }
+        [AllowNull]
+        public int? Mark { get; set; }
         [Required]
         public DateTime CreatedAt { get; set; }
     }

@@ -27,7 +27,6 @@
 
   <ItemGroup>
     <Folder Include="Models\Student\" />
-    <Folder Include="Models\Teacher\" />
   </ItemGroup>
 
 </Project>

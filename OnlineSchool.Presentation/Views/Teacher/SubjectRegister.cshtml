@@ -29,7 +29,7 @@
 
             </tbody>
         </table>
-        <nav aria-label="Page navigation example" class="text-dark text-end">
+        <nav aria-label="Page navigation example" class="text-dark">
             <ul class="pagination">
                 <li class="page-item">
                     <a class="page-link text-dark" href="#" aria-label="Previous">
@@ -41,7 +41,11 @@
                         <span class="sr-only">Next</span>
                     </a>
                 </li>
+                <li class="mx-2 border">
+                <a class="page-link text-dark" asp-action="AttendanceAndGrades" asp-controller="Teacher" asp-route-subjectId="@ViewBag.SubjectId"> <span class="sr-only">Today's Attendance</span></a>
+                </li>
             </ul>
+
         </nav>
     </div>
 </main>

@@ -7,6 +7,7 @@ using OnlineSchool.Application.EncryptionServiceInterface;
 using OnlineSchool.Domain.Contexts;
 using OnlineSchool.Domain.Entities;
 using OnlineSchool.Presentation.Models.Common;
+using OnlineSchool.Presentation.Models.Teacher;
 
 namespace OnlineSchool.Presentation.Controllers
 {
@@ -152,6 +153,20 @@ namespace OnlineSchool.Presentation.Controllers
             return RedirectToAction("Login", "Login");
         }
 
+        public async Task<IActionResult> AttendanceAndGrades(int subjectId)
+        {
+            AttendanceAndGradesModel attendanceAndGradesModel = new AttendanceAndGradesModel();
+            attendanceAndGradesModel.Subject = await _context.Subjects.Include(x=>x.Class).FirstOrDefaultAsync(x => x.Id == subjectId);
+            attendanceAndGradesModel.Students = _context.UserClasses.Where(x => x.ClassId == attendanceAndGradesModel.Subject.ClassId).Include(x => x.User).OrderBy(x=>x.User.LastName).ToList();
+            attendanceAndGradesModel.Date = DateTime.Now;
+            return View(attendanceAndGradesModel);
+        }
+
+        //[HttpPost]
+        //public async Task<IActionResult> AttendanceAndGrades()
+        //{
+        //}
+
         public async Task<IActionResult> ClassSubjects(int classId)
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == User.Identity.Name);
@@ -166,6 +181,8 @@ namespace OnlineSchool.Presentation.Controllers
                 classSubjectsModel.Teacher = await _context.Users.FirstOrDefaultAsync(x => x.Id == _context.Classes.FirstOrDefault(y => y.Id == classId).TeacherId);
                 List<UserClass> userClasses = await _context.UserClasses.Include(u => u.User).Where(x => x.ClassId == classId).ToListAsync();
                 classSubjectsModel.Students = new List<AppUser>();
+
+
 
                 foreach (var item in userClasses)
                 {
