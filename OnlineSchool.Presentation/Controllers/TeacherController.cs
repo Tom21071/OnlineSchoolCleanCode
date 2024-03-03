@@ -18,7 +18,7 @@ namespace OnlineSchool.Presentation.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IEncryptionService _encryptionService;
-        public TeacherController(AppDbContext context, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager,IEncryptionService encryptionService)
+        public TeacherController(AppDbContext context, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IEncryptionService encryptionService)
         {
             _context = context;
             _userManager = userManager;
@@ -97,23 +97,27 @@ namespace OnlineSchool.Presentation.Controllers
             }
             return RedirectToAction("Custom404", "Home");
         }
-        public async Task<IActionResult> SubjectRegister(int subjectId)
+        public async Task<IActionResult> SubjectRegister(int subjectId,int? skip)
         {
+            if (skip < 0 || skip == null)
+                skip = 0;
+
             var teacher = await _context.Users.FirstOrDefaultAsync(x => x.Email == User.Identity.Name);
             Subject? subject = await _context.Subjects.FirstOrDefaultAsync(x => x.Id == subjectId);
             if (subject == null || subject.TeacherId != teacher.Id)
             {
                 return RedirectToAction("Custom404", "Home");
             }
-
+            ViewBag.Skip = skip;
             Class? c = await _context.Classes.FirstOrDefaultAsync(x => x.Id == subject.ClassId);
 
             SubjectRegisterModel subjectRegisterModel = new SubjectRegisterModel();
             subjectRegisterModel.Students = _context.UserClasses.Where(x => x.ClassId == c.Id).Include(x => x.User).OrderBy(x => x.User.LastName).ToList();
-            subjectRegisterModel.Dates = _context.SubjectDates.ToList();
+            subjectRegisterModel.Dates = _context.SubjectDates.Where(x=>x.SubjectId == subjectId).OrderByDescending(x=>x.Date).Skip((int)skip).Take(5).OrderBy(x=>x.Date).ToList();
             subjectRegisterModel.Marks = _context.UserSubjectDateMarks.ToList();
 
             ViewBag.SubjectId = subjectId;
+            ViewBag.Skip = skip;
             return View(subjectRegisterModel);
         }
         public async Task<IActionResult> Schedule()
@@ -162,16 +166,38 @@ namespace OnlineSchool.Presentation.Controllers
         public async Task<IActionResult> AttendanceAndGrades(int subjectId)
         {
             AttendanceAndGradesModel attendanceAndGradesModel = new AttendanceAndGradesModel();
-            attendanceAndGradesModel.Subject = await _context.Subjects.Include(x=>x.Class).FirstOrDefaultAsync(x => x.Id == subjectId);
-            attendanceAndGradesModel.Students = _context.UserClasses.Where(x => x.ClassId == attendanceAndGradesModel.Subject.ClassId).Include(x => x.User).OrderBy(x=>x.User.LastName).ToList();
+            attendanceAndGradesModel.Subject = await _context.Subjects.Include(x => x.Class).FirstOrDefaultAsync(x => x.Id == subjectId);
+            attendanceAndGradesModel.Students = _context.UserClasses.Where(x => x.ClassId == attendanceAndGradesModel.Subject.ClassId).Include(x => x.User).OrderBy(x => x.User.LastName).ToList();
+            attendanceAndGradesModel.Marks = new List<int?>(new int?[attendanceAndGradesModel.Students.Count]);
+            attendanceAndGradesModel.IsPresent = new List<bool>(new bool[attendanceAndGradesModel.Students.Count]);
             attendanceAndGradesModel.Date = DateTime.Now;
+
             return View(attendanceAndGradesModel);
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> AttendanceAndGrades()
-        //{
-        //}
+        [HttpPost]
+        public async Task<IActionResult> AttendanceAndGrades(AttendanceAndGradesModel attendanceAndGradesModel)
+        {
+            attendanceAndGradesModel.Students = _context.UserClasses
+                .Where(x => x.ClassId == attendanceAndGradesModel.ClassId)
+                .Include(x => x.User).OrderBy(x => x.User.LastName).ToList();
+
+            SubjectDate date = new SubjectDate() { Date = DateTime.Now, SubjectId = attendanceAndGradesModel.SubjectId };
+            await _context.SubjectDates.AddAsync(date);
+            await _context.SaveChangesAsync();
+
+            for (int i = 0; i < attendanceAndGradesModel.Students.Count; i++)
+            {
+                UserSubjectDateMark mark;
+                if (attendanceAndGradesModel.IsPresent[i] == false)
+                    mark = new UserSubjectDateMark() { Mark = 0, SubjectDateId = date.Id, UserId = attendanceAndGradesModel.Students[i].UserId };
+                else
+                    mark = new UserSubjectDateMark() { Mark = attendanceAndGradesModel.Marks[i], SubjectDateId = date.Id, UserId = attendanceAndGradesModel.Students[i].UserId };
+                await _context.UserSubjectDateMarks.AddAsync(mark);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("SubjectRegister", "Teacher", new {subjectId = attendanceAndGradesModel.SubjectId});
+        }
 
         public async Task<IActionResult> ClassSubjects(int classId)
         {

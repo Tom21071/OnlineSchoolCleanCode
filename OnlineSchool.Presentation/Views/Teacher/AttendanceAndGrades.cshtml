@@ -1,35 +1,40 @@
 ﻿@model AttendanceAndGradesModel
-
 <main id="main" class="main">
     <!-- Begin Page Content -->
     <div class="container">
         <!-- Page Heading -->
         <div class="fs-4">@Model.Subject.Title - @Model.Subject.Class.Name - @Model.Date.ToString("D") </div>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th scope="col">Student</th>
-                    <th scope="col">Attendence</th>
-                    <th scope="col">Mark</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.Students)
-                {
+        <form method="post" asp-action="AttendanceAndGrades" asp-controller="Teacher">
+            <input asp-for=SubjectId value="@Model.Subject.Id" hidden/>
+            <input asp-for=ClassId value="@Model.Subject.ClassId" hidden />
+            <table class="table table-bordered">
+                <thead>
                     <tr>
-                        <th scope="row">@item.User.LastName @item.User.FirstName</th>
-                        <td>
-                            <div class="form-check form-switch fs-5">
-                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
-                            </div>
-                        </td>
-                        <td>
-                            <input min="1" max="10" type="number" class="w-50" />
-                        </td>
+                        <th scope="col">Student</th>
+                        <th scope="col">Attendence</th>
+                        <th scope="col">Mark</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i< Model.Students.Count; i++)
+                    {
+                       
+                        <tr>
+                            <th scope="row">@Model.Students[i].User.LastName @Model.Students[i].User.FirstName</th>
+                            <td>
+                                <div class="form-check form-switch fs-5">
+                                    <input asp-for=IsPresent[i] class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
+                                </div>
+                            </td>
+                            <td>
+                                <input asp-for=Marks[i]  min="1" max="10" type="number" class="w-50" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <button type="submit" class="btn btn-light border">Save Attendance and Grade</button>
+        </form>
     </div>
 
 

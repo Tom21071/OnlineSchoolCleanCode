@@ -30,12 +30,12 @@
         <nav aria-label="Page navigation example" class="text-dark">
             <ul class="pagination">
                 <li class="page-item">
-                    <a class="page-link text-dark" href="#" aria-label="Previous">
+                    <a class="page-link text-dark" asp-action="SubjectRegister" asp-controller="Teacher" asp-route-subjectId="@ViewBag.SubjectId" asp-route-skip="@(ViewBag.Skip + 5)" aria-label="Previous">
                         <span class="sr-only">Previous</span>
                     </a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link text-dark" href="#" aria-label="Next">
+                    <a class="page-link text-dark" asp-action="SubjectRegister" asp-controller="Teacher" asp-route-subjectId="@ViewBag.SubjectId" asp-route-skip="@(ViewBag.Skip - 5)" aria-label="Previous">
                         <span class="sr-only">Next</span>
                     </a>
                 </li>
