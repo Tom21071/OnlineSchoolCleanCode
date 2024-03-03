@@ -105,10 +105,16 @@ namespace OnlineSchool.Presentation.Controllers
             {
                 return RedirectToAction("Custom404", "Home");
             }
+
             Class? c = await _context.Classes.FirstOrDefaultAsync(x => x.Id == subject.ClassId);
-            List<UserClass> classUsers = _context.UserClasses.Where(x => x.ClassId == c.Id).Include(x => x.User).OrderBy(x => x.User.LastName).ToList();
+
+            SubjectRegisterModel subjectRegisterModel = new SubjectRegisterModel();
+            subjectRegisterModel.Students = _context.UserClasses.Where(x => x.ClassId == c.Id).Include(x => x.User).OrderBy(x => x.User.LastName).ToList();
+            subjectRegisterModel.Dates = _context.SubjectDates.ToList();
+            subjectRegisterModel.Marks = _context.UserSubjectDateMarks.ToList();
+
             ViewBag.SubjectId = subjectId;
-            return View(classUsers);
+            return View(subjectRegisterModel);
         }
         public async Task<IActionResult> Schedule()
         {

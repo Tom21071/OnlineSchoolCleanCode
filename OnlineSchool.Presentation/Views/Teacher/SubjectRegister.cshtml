@@ -1,4 +1,4 @@
-﻿ @model List<UserClass>
+﻿ @model SubjectRegisterModel
 
 <main id="main" class="main">
     <div class="container mt-5">
@@ -6,27 +6,25 @@
             <thead>
                 <tr>
                     <th scope="col">Student</th>
-                    <th scope="col">1 Sep 2024</th>
-                    <th scope="col">2 Sep 2024</th>
-                    <th scope="col">3 Sep 2024</th>
-                    <th scope="col">4 Sep 2024</th>
-                    <th scope="col">5 Sep 2024</th>
+                    @foreach (var d in Model.Dates)
+                    {
+                        <th scope="col">@d.Date.ToString("D")</th>
+                    }
                 </tr>
             </thead>
             <tbody>
 
-                @foreach (var item in Model)
+                @foreach (var student in Model.Students)
                 {
                     <tr>
-                        <th scope="row">@item.User.LastName @item.User.FirstName</th>
-                        <td>10</td>
-                        <td></td>
-                        <td>8</td>
-                        <td>7</td>
-                        <td></td>
+                        <th scope="row">@student.User.LastName @student.User.FirstName</th>
+                        @foreach (var d in Model.Dates)
+                        {
+                            <td>@(Model.Marks.FirstOrDefault(x => x.UserId == student.UserId && x.SubjectDateId == d.Id)?.Mark != 0 ? Model.Marks.FirstOrDefault(x => x.UserId == student.UserId && x.SubjectDateId == d.Id)?.Mark : "absent" )</td>
+
+                        }
                     </tr>
                 }
-
             </tbody>
         </table>
         <nav aria-label="Page navigation example" class="text-dark">
@@ -42,7 +40,7 @@
                     </a>
                 </li>
                 <li class="mx-2 border">
-                <a class="page-link text-dark" asp-action="AttendanceAndGrades" asp-controller="Teacher" asp-route-subjectId="@ViewBag.SubjectId"> <span class="sr-only">Today's Attendance</span></a>
+                    <a class="page-link text-dark" asp-action="AttendanceAndGrades" asp-controller="Teacher" asp-route-subjectId="@ViewBag.SubjectId"> <span class="sr-only">Today's Attendance</span></a>
                 </li>
             </ul>
 

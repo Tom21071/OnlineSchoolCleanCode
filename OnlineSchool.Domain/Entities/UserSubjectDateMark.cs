@@ -13,7 +13,5 @@ namespace OnlineSchool.Domain.Entities
         public int SubjectDateId { get; set; }
         [AllowNull]
         public int? Mark { get; set; }
-        [Required]
-        public DateTime CreatedAt { get; set; }
     }
 }
