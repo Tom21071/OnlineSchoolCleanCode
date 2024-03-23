@@ -8,6 +8,7 @@ using OnlineSchool.Domain.Contexts;
 using OnlineSchool.Domain.Entities;
 using OnlineSchool.Infrastructure.EncryptionServiceImplementation;
 using OnlineSchool.Presentation.Models.Common;
+using OnlineSchool.Presentation.Models.Teacher;
 
 namespace OnlineSchool.Presentation.Controllers
 {
@@ -50,7 +51,31 @@ namespace OnlineSchool.Presentation.Controllers
 
         public IActionResult ClassRegister()
         {
-            return View();
+            var user = _context.Users.FirstOrDefault(x => x.Email == User.Identity.Name);
+            var class1 = _context.UserClasses.FirstOrDefault(x => x.UserId == user.Id);
+            List<Subject> subjects = _context.Subjects.Include(x=>x.Class).Where(x => x.ClassId == class1.ClassId).ToList();
+            return View(subjects);
+        }
+
+        public async Task<IActionResult> SubjectRegister(int subjectId, int? skip)
+        {
+            if (skip < 0 || skip == null)
+                skip = 0;
+
+            var student = await _context.Users.FirstOrDefaultAsync(x => x.Email == User.Identity.Name);
+            Subject? subject = await _context.Subjects.FirstOrDefaultAsync(x => x.Id == subjectId);
+           
+            ViewBag.Skip = skip;
+            Class? c = await _context.Classes.FirstOrDefaultAsync(x => x.Id == subject.ClassId);
+
+            SubjectRegisterModel subjectRegisterModel = new SubjectRegisterModel();
+            subjectRegisterModel.Students = new List<UserClass>() { _context.UserClasses.FirstOrDefault(x=>x.UserId == student.Id) };
+            subjectRegisterModel.Dates = _context.SubjectDates.Where(x => x.SubjectId == subjectId).OrderByDescending(x => x.Date).Skip((int)skip).Take(5).OrderBy(x => x.Date).ToList();
+            subjectRegisterModel.Marks = _context.UserSubjectDateMarks.Where(x=>x.UserId == student.Id).ToList();
+
+            ViewBag.SubjectId = subjectId;
+            ViewBag.Skip = skip;
+            return View(subjectRegisterModel);
         }
 
         public async Task<IActionResult> Schedule()

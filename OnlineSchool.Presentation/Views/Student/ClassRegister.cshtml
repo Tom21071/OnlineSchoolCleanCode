@@ -1,5 +1,25 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model List<Subject>
+<main id="main" class="main">
+    <div class="row">
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                <div style="width: 22rem;" class="mt-3">
+                    <div class="card border-left-success shadow-lg h-100 py-1">
+                        <div class="ratio ratio-1x1"><img class="card-img-top" src=@item.ImagePath alt="Card image cap"></div>
+                        <div class="card-body">
+                            <div class=" text-s font-weight-bold text-primary text-uppercase mb-1">@item.Title </div>
+                            <p class="card-text">@item.Class.Name</p>
+                            <div class="text-center">
+                                <a asp-action="Chat" asp-controller="Home" asp-route-subjectId="@item.Id" class="btn btn-outline-primary mb-2">Открыть Предмет</a>
+                            </div>
+                            <div class="text-center">
+                                <a asp-action="SubjectRegister" asp-controller="Student" asp-route-subjectId="@item.Id" class="btn btn-outline-success">Открыть Журнал</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</main>

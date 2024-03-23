@@ -1,0 +1,46 @@
+﻿ @model SubjectRegisterModel
+
+<main id="main" class="main">
+    <div class="container mt-5">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">Student</th>
+                    @foreach (var d in Model.Dates)
+                    {
+                        <th scope="col">@d.Date.ToString("D")</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var student in Model.Students)
+                {
+                    <tr>
+                        <th scope="row">@student.User.LastName @student.User.FirstName</th>
+                        @foreach (var d in Model.Dates)
+                        {
+                            <td>@(Model.Marks.FirstOrDefault(x => x.UserId == student.UserId && x.SubjectDateId == d.Id)?.Mark != 0 ? Model.Marks.FirstOrDefault(x => x.UserId == student.UserId && x.SubjectDateId == d.Id)?.Mark : "absent" )</td>
+
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <nav aria-label="Page navigation example" class="text-dark">
+            <ul class="pagination">
+                <li class="page-item">
+                    <a class="page-link text-dark" asp-action="SubjectRegister" asp-controller="Student" asp-route-subjectId="@ViewBag.SubjectId" asp-route-skip="@(ViewBag.Skip + 5)" aria-label="Previous">
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link text-dark" asp-action="SubjectRegister" asp-controller="Student" asp-route-subjectId="@ViewBag.SubjectId" asp-route-skip="@(ViewBag.Skip - 5)" aria-label="Previous">
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+
+        </nav>
+    </div>
+</main>
