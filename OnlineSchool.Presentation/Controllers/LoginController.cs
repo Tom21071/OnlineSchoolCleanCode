@@ -39,7 +39,15 @@ namespace OnlineSchool.Presentation.Controllers
                 }
                 if (result.IsLockedOut)
                 {
-                    ViewBag.Error = "Too many login attempts, you can try again in 10 minutes";
+                    if(user.LockoutEnd == DateTime.MaxValue)
+                    {
+                        ViewBag.Error = "Your account was blocked, contact the administrator for the additional information";
+                    }
+                    else
+                    {
+                        ViewBag.Error = "Too many login attempts, you can try again in 10 minutes";
+                    }
+                   
                     return View();
                 }
             }

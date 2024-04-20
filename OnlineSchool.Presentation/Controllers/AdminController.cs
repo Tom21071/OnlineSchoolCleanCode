@@ -36,7 +36,7 @@ namespace OnlineSchool.Presentation.Controllers
             List<PrivateMessage> messages = _context.PrivateMessages.Where(x => x.RecieverId == userId && x.IsRead == false).Include(x => x.Sender).OrderByDescending(x => x.Created).ToList();
             List<string> ids = messages.Select(x => x.SenderId).Distinct().ToList();
             List<PrivateMessage> uniqueMessages = new List<PrivateMessage>();
-            foreach (var item in ids) 
+            foreach (var item in ids)
             {
                 var uniqueMessage = (messages.FirstOrDefault(x => x.SenderId == item));
                 uniqueMessage.Text = _encryptionService.DecryptMessage(Convert.FromBase64String(uniqueMessage.Text));
@@ -48,6 +48,35 @@ namespace OnlineSchool.Presentation.Controllers
             base.OnActionExecuted(context);
         }
 
+        public async Task<IActionResult> ManageUsers()
+        {
+            return View(await _context.Users.Include(x => x.Roles).ToListAsync());
+        }
+
+        public async Task<IActionResult> BlockUser(string Id)
+        {
+            var user = _context.Users.FirstOrDefault(x => x.Id == Id);
+            if (user != null)
+            {
+                user.LockoutEnabled = true;
+                user.LockoutEnd = DateTime.MaxValue;
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("ManageUsers", "Admin");
+        }
+
+        public async Task<IActionResult> UnBlockUser(string Id)
+        {
+            var user = _context.Users.FirstOrDefault(x => x.Id == Id);
+            if (user != null)
+            {
+                user.LockoutEnd = new DateTime(new DateOnly(2000,01,01),new TimeOnly(11,30));
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("ManageUsers", "Admin");
+        }
 
         [HttpGet]
         [AllowAnonymous]
