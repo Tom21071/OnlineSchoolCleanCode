@@ -1,0 +1,24 @@
+﻿@model LoginsModel
+<main id="main" class="main">
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>IP</th>
+            <th>Email</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var login in Model.Logins)
+        {
+            <tr>
+                <td>@login.Id</td>
+                <td>@login.Ip</td>
+                <td>@login.Email</td>
+                <td>@login.Date</td>
+            </tr>
+        }
+    </tbody>
+</table>
+</main>

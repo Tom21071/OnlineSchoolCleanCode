@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using OnlineSchool.Domain.Contexts;
 using OnlineSchool.Domain.Entities;
 using OnlineSchool.Presentation.Models.Login;
 
@@ -10,11 +11,13 @@ namespace OnlineSchool.Presentation.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly AppDbContext _appDbContext;
 
-        public LoginController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+        public LoginController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, AppDbContext appDbContext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _appDbContext = appDbContext;
         }
 
         [AllowAnonymous]
@@ -34,6 +37,24 @@ namespace OnlineSchool.Presentation.Controllers
 
                 if (result.Succeeded)
                 {
+                    string VisitorsIPAddr = "not defined";
+                    var httpContext = HttpContext;
+                    if (httpContext.Request.Headers.TryGetValue("HTTP_X_FORWARDED_FOR", out var forwardedFor))
+                    {
+                        VisitorsIPAddr = forwardedFor.FirstOrDefault();
+                    }
+                    else if (!string.IsNullOrEmpty(httpContext.Connection.RemoteIpAddress?.ToString()))
+                    {
+                        VisitorsIPAddr = httpContext.Connection.RemoteIpAddress.ToString();
+                    }
+
+                    Logins login = new();
+                    login.Date = DateTime.Now;
+                    login.Email = model.Email;
+                    login.Ip = VisitorsIPAddr;
+                    await _appDbContext.Logins.AddAsync(login);
+                    await _appDbContext.SaveChangesAsync();
+
                     await _signInManager.SignInAsync(user, isPersistent: true);
                     return RedirectToAction("Dashboard", "Home");
                 }

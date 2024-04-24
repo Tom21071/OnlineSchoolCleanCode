@@ -48,6 +48,14 @@ namespace OnlineSchool.Presentation.Controllers
             base.OnActionExecuted(context);
         }
 
+        public async Task<IActionResult> Logins()
+        {
+            LoginsModel loginsModel = new();
+            loginsModel.Logins = await _context.Logins.ToListAsync(); 
+            return View(loginsModel);
+        }
+
+
         public async Task<IActionResult> ManageUsers()
         {
             return View(await _context.Users.Include(x => x.Roles).ToListAsync());

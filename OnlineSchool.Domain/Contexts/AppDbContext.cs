@@ -24,6 +24,7 @@ namespace OnlineSchool.Domain.Contexts
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<UserNotification> UserNotifications { get; set; }
         public DbSet<SubjectDate> SubjectDates { get; set; }
+        public DbSet<Logins> Logins { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
