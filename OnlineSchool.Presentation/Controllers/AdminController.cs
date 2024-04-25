@@ -123,7 +123,9 @@ namespace OnlineSchool.Presentation.Controllers
                     LastName = model.LastName,
                     Patronym = model.Patronym,
                     IDNP = model.IDNP,
-                    DateOfBirth = model.DateOfBirth
+                    DateOfBirth = model.DateOfBirth,
+                    TwoFactorEnabled = true,
+                    EmailConfirmed = true
                 };
                 var result = await _userManager.CreateAsync(user, model.Password);
 

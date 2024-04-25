@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using OnlineSchool.Application.EncryptionServiceInterface;
 using OnlineSchool.Domain.Contexts;
 using OnlineSchool.Domain.Entities;
@@ -12,7 +13,10 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddSignalR();
 builder.Services.AddTransient<IEncryptionService,EncryptionService>();
-
+var serviceProvider = builder.Services.BuildServiceProvider();
+var logger = serviceProvider.GetService<ILogger<ApplicationLogger>>();
+//Add Singleton if you want to use Generic class logger in place of ILogger<T>
+builder.Services.AddSingleton(typeof(ILogger), logger);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("OnlineSchoolDb")));
 builder.Services.AddIdentity<AppUser, IdentityRole>(opt =>
@@ -22,7 +26,8 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(opt =>
     opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
     opt.Lockout.MaxFailedAccessAttempts = 3;
 
-}).AddEntityFrameworkStores<AppDbContext>();
+}).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Login/Login"; // Specify the route to your custom login page.
@@ -56,3 +61,5 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Dashboard}/{id?}");
 
 app.Run();
+
+public class ApplicationLogger{}
