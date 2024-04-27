@@ -67,7 +67,7 @@ namespace OnlineSchool.Presentation.Controllers
             if (user != null)
             {
                 user.LockoutEnabled = true;
-                user.LockoutEnd = DateTime.MaxValue;
+                user.LockoutEnd = new DateTime(new DateOnly(5000,6,6),new TimeOnly(6,30));
                 _context.Users.Update(user);
                 await _context.SaveChangesAsync();
             }

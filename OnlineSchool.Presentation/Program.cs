@@ -13,10 +13,7 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddSignalR();
 builder.Services.AddTransient<IEncryptionService,EncryptionService>();
-var serviceProvider = builder.Services.BuildServiceProvider();
-var logger = serviceProvider.GetService<ILogger<ApplicationLogger>>();
 //Add Singleton if you want to use Generic class logger in place of ILogger<T>
-builder.Services.AddSingleton(typeof(ILogger), logger);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("OnlineSchoolDb")));
 builder.Services.AddIdentity<AppUser, IdentityRole>(opt =>

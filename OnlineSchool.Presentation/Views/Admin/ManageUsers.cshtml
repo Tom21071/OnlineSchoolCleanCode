@@ -13,7 +13,6 @@
                 <th>Patronym</th>
                 <th>IDNP</th>
                 <th>Date of Birth</th>
-                <th>Image Path</th>
                 <th>Email</th>
                 <th>Role Id</th>
                 <th>Role Name</th>
@@ -30,7 +29,6 @@
                     <td>@user.Patronym</td>
                     <td>@user.IDNP</td>
                     <td>@user.DateOfBirth.ToString("yyyy-MM-dd")</td>
-                    <td>@(user.ImagePath.Substring(0, 20) + "...")</td>
                     <td>@(user.Email)</td>
                     <td>
                         @foreach (var r in user.Roles)
